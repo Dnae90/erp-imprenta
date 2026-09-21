@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket ERP · Imprentas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F1F0EA;
+    --paper-raised:#FFFFFF;
+    --ink:#1E2124;
+    --ink-soft:#5B5F63;
+    --line:#D9D6CC;
+    --sidebar:#15171A;
+    --sidebar-text:#C9CCCF;
+    --sidebar-text-dim:#797E82;
+    --press-blue:#1D4E89;
+    --press-blue-dark:#163C69;
+    --cyan:#0090B5;
+    --magenta:#B8005E;
+    --yellow:#B98A00;
+    --green:#2E7D5E;
+    --red:#B23E22;
+    --focus:#1D4E89;
+    font-family:"IBM Plex Sans", sans-serif;
+  }
+  :root:not([data-theme="light"]){
+    @media (prefers-color-scheme: dark){
+      --paper:#1B1C1E;
+      --paper-raised:#232527;
+      --ink:#E7E6E2;
+      --ink-soft:#9A9D9F;
+      --line:#37393B;
+      --sidebar:#0E0F11;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1B1C1E;
+    --paper-raised:#232527;
+    --ink:#E7E6E2;
+    --ink-soft:#9A9D9F;
+    --line:#37393B;
+    --sidebar:#0E0F11;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+  }
+  h1,h2,h3,.brand,.nav-label{font-family:"Space Grotesk", sans-serif;}
+  .mono{font-family:"IBM Plex Mono", monospace;}
+  a{color:inherit;}
+  button{font-family:inherit;}
+  ::selection{background:var(--press-blue);color:#fff;}
+  *:focus-visible{outline:2px solid var(--focus);outline-offset:2px;}
+
+  .app{display:flex;min-height:100vh;}
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    width:236px;flex:none;background:var(--sidebar);color:var(--sidebar-text);
+    display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;
+  }
+  .brand{
+    display:flex;align-items:center;gap:10px;padding:20px 18px 16px 18px;
+    border-bottom:1px solid #2A2C2F;
+  }
+  .brand-mark{
+    width:26px;height:26px;flex:none;position:relative;
+  }
+  .brand-mark svg{width:100%;height:100%;}
+  .brand-name{font-size:15px;font-weight:600;color:#F2F1EC;line-height:1.2;}
+  .brand-sub{font-size:11px;color:var(--sidebar-text-dim);font-family:"IBM Plex Mono",monospace;}
+
+  .nav{padding:10px 10px;flex:1;}
+  .nav-group-title{
+    font-size:11px;color:var(--sidebar-text-dim);padding:14px 10px 6px 10px;
+    letter-spacing:.02em;
+  }
+  .nav-item{
+    display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+    background:transparent;border:none;color:var(--sidebar-text);
+    padding:9px 10px;border-radius:4px;font-size:13.5px;cursor:pointer;
+    border-left:3px solid transparent;margin-bottom:1px;
+  }
+  .nav-item:hover{background:#1F2124;color:#F2F1EC;}
+  .nav-item.active{background:#1F2124;color:#F2F1EC;border-left-color:var(--cyan);}
+  .nav-item .dot{width:6px;height:6px;border-radius:50%;background:var(--sidebar-text-dim);flex:none;}
+  .nav-item.active .dot{background:var(--cyan);}
+
+  .sidebar-foot{
+    padding:14px 18px;border-top:1px solid #2A2C2F;font-size:11.5px;color:var(--sidebar-text-dim);
+    font-family:"IBM Plex Mono",monospace;
+  }
+
+  /* ---------- Main ---------- */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .topbar{
+    display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+    padding:22px 28px 14px 28px;border-bottom:1px solid var(--line);
+    background:var(--paper);position:sticky;top:0;z-index:5;
+  }
+  .topbar .crumb{font-size:12px;color:var(--ink-soft);font-family:"IBM Plex Mono",monospace;margin-bottom:4px;}
+  .topbar h1{font-size:22px;margin:0;font-weight:600;}
+  .topbar .actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+  .content{padding:22px 28px 60px 28px;}
+
+  /* ---------- Building blocks ---------- */
+  .btn{
+    border:1px solid var(--line);background:var(--paper-raised);color:var(--ink);
+    padding:8px 14px;border-radius:4px;font-size:13.5px;cursor:pointer;font-weight:500;
+    display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+  }
+  .btn:hover{border-color:var(--ink-soft);}
+  .btn-primary{background:var(--press-blue);border-color:var(--press-blue);color:#fff;}
+  .btn-primary:hover{background:var(--press-blue-dark);border-color:var(--press-blue-dark);}
+  .btn-danger{color:var(--red);}
+  .btn-danger-solid{background:var(--red);border-color:var(--red);color:#fff;}
+  .btn-danger-solid:hover{background:#95331b;border-color:#95331b;}
+  .btn-sm{padding:4px 9px;font-size:12.5px;}
+  .btn-ghost{background:transparent;border-color:transparent;}
+  .btn-ghost:hover{background:var(--line);}
+
+  .cards-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:22px;}
+  .kpi{
+    background:var(--paper-raised);border:1px solid var(--line);border-radius:6px;padding:14px 16px;
+  }
+  .kpi .label{font-size:12px;color:var(--ink-soft);margin-bottom:6px;}
+  .kpi .value{font-size:24px;font-weight:600;font-family:"IBM Plex Mono",monospace;}
+  .kpi .sub{font-size:11.5px;color:var(--ink-soft);margin-top:4px;}
+
+  .panel{background:var(--paper-raised);border:1px solid var(--line);border-radius:6px;margin-bottom:20px;}
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:14px 16px;border-bottom:1px solid var(--line);
+  }
+  .panel-head h3{font-size:14.5px;margin:0;font-weight:600;}
+  .panel-body{padding:14px 16px;}
+  .panel-body.no-pad{padding:0;}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  thead th{
+    text-align:left;font-weight:500;color:var(--ink-soft);font-size:12px;
+    padding:9px 14px;border-bottom:1px solid var(--line);white-space:nowrap;
+  }
+  tbody td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:color-mix(in srgb, var(--paper) 60%, transparent);}
+  .num{font-family:"IBM Plex Mono",monospace;text-align:right;}
+  .row-actions{display:flex;gap:4px;justify-content:flex-end;}
+
+  .tag{
+    display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:100px;
+    font-size:11.5px;font-weight:500;border:1px solid transparent;
+  }
+  .tag-cyan{background:color-mix(in srgb, var(--cyan) 14%, transparent);color:var(--cyan);}
+  .tag-magenta{background:color-mix(in srgb, var(--magenta) 14%, transparent);color:var(--magenta);}
+  .tag-yellow{background:color-mix(in srgb, var(--yellow) 16%, transparent);color:var(--yellow);}
+  .tag-green{background:color-mix(in srgb, var(--green) 14%, transparent);color:var(--green);}
+  .tag-red{background:color-mix(in srgb, var(--red) 14%, transparent);color:var(--red);}
+  .tag-grey{background:color-mix(in srgb, var(--ink-soft) 14%, transparent);color:var(--ink-soft);}
+
+  .empty{padding:36px 16px;text-align:center;color:var(--ink-soft);font-size:13.5px;}
+  .empty .big{font-size:26px;margin-bottom:6px;}
+
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:16px;}
+  .tab{
+    padding:9px 4px;margin-bottom:-1px;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;
+    color:var(--ink-soft);font-size:13.5px;cursor:pointer;font-weight:500;margin-right:16px;
+  }
+  .tab.active{color:var(--ink);border-bottom-color:var(--press-blue);}
+
+  /* forms */
+  .field{margin-bottom:12px;}
+  .field label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:4px;}
+  .field input,.field select,.field textarea{
+    width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:4px;
+    background:var(--paper-raised);color:var(--ink);font-size:13.5px;font-family:inherit;
+  }
+  .field textarea{min-height:64px;resize:vertical;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .field-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .hint{font-size:11.5px;color:var(--ink-soft);margin-top:4px;}
+  .checkline{display:flex;align-items:center;gap:8px;font-size:13px;}
+  .checkline input{width:auto;}
+
+  /* modal */
+  .overlay{
+    position:fixed;inset:0;background:rgba(15,16,17,.45);display:none;
+    align-items:flex-start;justify-content:center;padding:5vh 16px;z-index:50;overflow-y:auto;
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:var(--paper-raised);border-radius:8px;width:100%;max-width:560px;
+    border:1px solid var(--line);box-shadow:0 12px 32px rgba(0,0,0,.18);
+  }
+  .modal.wide{max-width:760px;}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line);}
+  .modal-head h3{margin:0;font-size:15.5px;}
+  .modal-body{padding:18px;max-height:70vh;overflow-y:auto;}
+  .modal-foot{padding:14px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;}
+
+  .toast-wrap{position:fixed;bottom:20px;right:20px;z-index:80;display:flex;flex-direction:column;gap:8px;}
+  .toast{
+    background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:5px;font-size:13px;
+    box-shadow:0 6px 18px rgba(0,0,0,.2);
+  }
+  :root[data-theme="dark"] .toast, .toast{background:#14161A;color:#F2F1EC;}
+
+  .steps{display:flex;gap:0;margin:4px 0 20px 0;}
+  .step{flex:1;text-align:center;position:relative;padding-bottom:10px;}
+  .step .n{
+    width:24px;height:24px;border-radius:50%;background:var(--line);color:var(--ink-soft);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 6px auto;font-size:12px;
+    font-family:"IBM Plex Mono",monospace;font-weight:600;
+  }
+  .step.done .n{background:var(--green);color:#fff;}
+  .step.current .n{background:var(--press-blue);color:#fff;}
+  .step .lbl{font-size:11.5px;color:var(--ink-soft);}
+  .step.current .lbl, .step.done .lbl{color:var(--ink);}
+  .step::after{
+    content:"";position:absolute;top:12px;left:50%;width:100%;height:2px;background:var(--line);z-index:-1;
+  }
+  .step:first-child::after{left:50%;}
+  .step:last-child::after{display:none;}
+  .step.done::after{background:var(--green);}
+
+  .line-table input, .line-table select{padding:6px 8px;font-size:13px;}
+  .quote-print{display:none;}
+
+  .helpbar{
+    display:flex;gap:8px;align-items:flex-start;background:color-mix(in srgb, var(--press-blue) 8%, transparent);
+    border:1px solid color-mix(in srgb, var(--press-blue) 30%, transparent);border-radius:6px;
+    padding:10px 12px;font-size:12.5px;color:var(--ink-soft);margin-bottom:16px;
+  }
+
+  @media(max-width:880px){
+    .sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);transition:transform .18s ease;z-index:60;box-shadow:0 0 0 2000px rgba(0,0,0,0);}
+    .sidebar.open{transform:translateX(0);box-shadow:12px 0 30px rgba(0,0,0,.3);}
+    .menu-btn{display:inline-flex !important;}
+    .content{padding:16px 14px 50px 14px;}
+    .topbar{padding:16px 14px 12px 14px;}
+    .field-row,.field-row3{grid-template-columns:1fr;}
+    .cards-row{grid-template-columns:repeat(2,1fr);}
+    .sidebar-scrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:55;}
+    .sidebar-scrim.open{display:block;}
+  }
+  .menu-btn{display:none;border:1px solid var(--line);background:var(--paper-raised);border-radius:5px;padding:7px 9px;cursor:pointer;}
+
+  @media print{
+    body *{visibility:hidden;}
+    .quote-print, .quote-print *{visibility:visible;}
+    .quote-print{display:block;position:absolute;top:0;left:0;width:100%;padding:24px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="sidebar-scrim" id="scrim"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="13" cy="13" r="10.5" stroke="#3FC1D6" stroke-width="1.4"/>
+          <line x1="13" y1="1" x2="13" y2="8" stroke="#3FC1D6" stroke-width="1.4"/>
+          <line x1="13" y1="18" x2="13" y2="25" stroke="#3FC1D6" stroke-width="1.4"/>
+          <line x1="1" y1="13" x2="8" y2="13" stroke="#3FC1D6" stroke-width="1.4"/>
+          <line x1="18" y1="13" x2="25" y2="13" stroke="#3FC1D6" stroke-width="1.4"/>
+          <circle cx="13" cy="13" r="2" fill="#3FC1D6"/>
+        </svg>
+      </span>
+      <div>
+        <div class="brand-name">Registro</div>
+        <div class="brand-sub">ERP para imprentas</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="sidebar-foot" id="sidebarFoot">Culiacán, Sinaloa</div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <button class="menu-btn" id="menuBtn">☰</button>
+        <div class="crumb" id="crumb">registro /</div>
+        <h1 id="pageTitle">Inicio</h1>
+      </div>
+      <div class="actions" id="pageActions"></div>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">Título</h3>
+      <button class="btn btn-ghost btn-sm" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<div class="quote-print" id="quotePrint"></div>
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ================= Utilidades ================= */
+const $ = (sel, ctx) => (ctx||document).querySelector(sel);
+const $$ = (sel, ctx) => Array.from((ctx||document).querySelectorAll(sel));
+const uid = (p) => (p||"id") + "_" + Math.random().toString(36).slice(2,9);
+const fmtMoney = (n) => "$" + (Number(n)||0).toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtDate = (d) => { if(!d) return "—"; const dt = new Date(d+"T00:00:00"); if(isNaN(dt)) return d; return dt.toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}); };
+const todayISO = () => new Date().toISOString().slice(0,10);
+const esc = (s) => String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function toast(msg){
+  const wrap = $("#toastWrap");
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.transition="opacity .3s"; el.style.opacity="0"; setTimeout(()=>el.remove(),300); }, 2200);
+}
+
+/* ================= Datos semilla ================= */
+const SEED = {
+  services: [
+    {id:uid("srv"), name:"Impresión offset 4x0", category:"Offset", unit:"millar", cost:420, price:680, active:true},
+    {id:uid("srv"), name:"Impresión digital full color", category:"Digital", unit:"pieza", cost:1.8, price:3.5, active:true},
+    {id:uid("srv"), name:"Gran formato (lona)", category:"Gran formato", unit:"m²", cost:55, price:110, active:true},
+    {id:uid("srv"), name:"Troquelado", category:"Acabados", unit:"millar", cost:180, price:320, active:true},
+    {id:uid("srv"), name:"Laminado mate/brillante", category:"Acabados", unit:"m²", cost:9, price:18, active:true},
+    {id:uid("srv"), name:"Encuadernado engargolado", category:"Acabados", unit:"pieza", cost:6, price:14, active:true},
+    {id:uid("srv"), name:"Diseño editorial", category:"Diseño", unit:"minutos", cost:2, price:4.5, active:true},
+    {id:uid("srv"), name:"Etiquetas autoadheribles", category:"Etiquetas", unit:"millar", cost:260, price:430, active:true},
+  ],
+  materials: [
+    {id:uid("mat"), name:"Papel bond 90g", category:"Papel", unit:"resma", stock:340, minStock:80, unitCost:95, supplier:"Papelera del Pacífico"},
+    {id:uid("mat"), name:"Cartulina sulfatada 12pt", category:"Papel", unit:"pliego", stock:1200, minStock:400, unitCost:6.2, supplier:"Cartones y Papeles del Noroeste"},
+    {id:uid("mat"), name:"Tinta offset Cyan", category:"Tinta", unit:"kg", stock:18, minStock:10, unitCost:210, supplier:"Tintas del Pacífico"},
+    {id:uid("mat"), name:"Tinta offset Magenta", category:"Tinta", unit:"kg", stock:14, minStock:10, unitCost:210, supplier:"Tintas del Pacífico"},
+    {id:uid("mat"), name:"Vinil autoadherible", category:"Gran formato", unit:"m²", stock:210, minStock:60, unitCost:32, supplier:"Insumos Gráficos Sinaloa"},
+    {id:uid("mat"), name:"Lona banner 13oz", category:"Gran formato", unit:"m²", stock:150, minStock:50, unitCost:28, supplier:"Insumos Gráficos Sinaloa"},
+    {id:uid("mat"), name:"Plancha offset (CTP)", category:"Preprensa", unit:"pieza", stock:65, minStock:30, unitCost:78, supplier:"Preprensa Digital Culiacán"},
+    {id:uid("mat"), name:"Laminado mate rollo", category:"Acabados", unit:"m", stock:90, minStock:30, unitCost:14, supplier:"Insumos Gráficos Sinaloa"},
+  ],
+  waste: [
+    {id:uid("mer"), date: todayISO(), material:"Recorte de cartulina 12pt", qty:24, unit:"kg", origin:"OT-2019", reciclable:true, status:"disponible", notes:"Recortes de guillotina, tamaño mediano"},
+    {id:uid("mer"), date: todayISO(), material:"Merma de vinil impreso", qty:6.5, unit:"m²", origin:"OT-2027", reciclable:false, status:"desechado", notes:"Prueba de color con defecto"},
+    {id:uid("mer"), date: todayISO(), material:"Papel bond sobrante", qty:3, unit:"resma", origin:"Compra sobrestimada", reciclable:true, status:"reutilizado", notes:"Reasignado a OT-2031"},
+  ],
+  suppliers: [
+    {id:uid("prv"), name:"Papelera del Pacífico", contact:"Marisol Osuna", phone:"667 210 4455", email:"ventas@papelerapacifico.mx", materials:"Papel bond, papel couché", terms:"Crédito 30 días"},
+    {id:uid("prv"), name:"Cartones y Papeles del Noroeste", contact:"Jesús Beltrán", phone:"667 188 0032", email:"jbeltran@cypn.mx", materials:"Cartulina, cartón corrugado", terms:"Contado"},
+    {id:uid("prv"), name:"Tintas del Pacífico", contact:"Rodrigo Ibarra", phone:"667 305 7712", email:"pedidos@tintaspacifico.com", materials:"Tintas offset CMYK, barnices", terms:"Crédito 15 días"},
+    {id:uid("prv"), name:"Insumos Gráficos Sinaloa", contact:"Ana Lucía Payán", phone:"667 442 9981", email:"contacto@insugrasin.mx", materials:"Vinil, lona, laminados", terms:"Crédito 30 días"},
+    {id:uid("prv"), name:"Preprensa Digital Culiacán", contact:"Óscar Valenzuela", phone:"667 774 2210", email:"oscar@preprensacln.mx", materials:"Planchas CTP, servicios de preprensa", terms:"Contado"},
+  ],
+  purchases: [
+    {id:uid("cmp"), date: todayISO(), supplier:"Papelera del Pacífico", items:[{material:"Papel bond 90g", qty:100, unitCost:95}], total:9500, status:"recibida"},
+    {id:uid("cmp"), date: todayISO(), supplier:"Tintas del Pacífico", items:[{material:"Tinta offset Cyan", qty:10, unitCost:210},{material:"Tinta offset Magenta", qty:10, unitCost:210}], total:4200, status:"pendiente"},
+  ],
+  transactions: [
+    {id:uid("mov"), date: todayISO(), type:"ingreso", category:"Venta / OT", description:"Pago OT-2019 — Grupo Comercial Sinaloa", amount:18400, ref:"OT-2019"},
+    {id:uid("mov"), date: todayISO(), type:"egreso", category:"Compra de insumos", description:"Compra de papel bond", amount:9500, ref:"Compra"},
+    {id:uid("mov"), date: todayISO(), type:"egreso", category:"Nómina", description:"Nómina quincenal — 62 colaboradores", amount:412000, ref:"RH"},
+    {id:uid("mov"), date: todayISO(), type:"ingreso", category:"Venta / OT", description:"Anticipo 50% OT-2031 — Farmacias del Valle", amount:9600, ref:"OT-2031"},
+    {id:uid("mov"), date: todayISO(), type:"egreso", category:"Servicios", description:"Energía eléctrica — planta", amount:38200, ref:"Gastos fijos"},
+  ],
+  employees: [
+    {id:uid("emp"), name:"Luis Fernando Rochín", position:"Gerente de producción", department:"Producción", salary:26000, phone:"667 111 2233", startDate:"2019-03-11", status:"activo"},
+    {id:uid("emp"), name:"Karla Yamileth Osuna", position:"Diseñadora gráfica", department:"Diseño", salary:14500, phone:"667 222 3344", startDate:"2021-06-02", status:"activo"},
+    {id:uid("emp"), name:"Héctor Manuel Zazueta", position:"Prensista offset", department:"Producción", salary:15800, phone:"667 333 4455", startDate:"2018-01-20", status:"activo"},
+    {id:uid("emp"), name:"Diana Paola Inzunza", position:"Ejecutiva de ventas", department:"Ventas", salary:13200, phone:"667 444 5566", startDate:"2022-09-14", status:"activo"},
+    {id:uid("emp"), name:"Jorge Alberto Lizárraga", position:"Operador gran formato", department:"Producción", salary:12800, phone:"667 555 6677", startDate:"2020-11-05", status:"incapacidad"},
+    {id:uid("emp"), name:"Brenda Guadalupe Cázares", position:"Auxiliar contable", department:"Administración", salary:11500, phone:"667 666 7788", startDate:"2023-02-27", status:"activo"},
+  ],
+  quotes: [
+    {id:uid("cot"), folio:"COT-1042", date: todayISO(), client:{name:"Farmacias del Valle", phone:"667 900 1122", email:"compras@farmaciasdelvalle.mx"},
+      items:[{service:"Etiquetas autoadheribles", qty:5, unitPrice:430, subtotal:2150},{service:"Diseño editorial", qty:2, unitPrice:280, subtotal:560}],
+      subtotal:2710, iva:433.6, total:3143.6, status:"convertida", notes:"Requiere entrega en dos partidas."},
+    {id:uid("cot"), folio:"COT-1043", date: todayISO(), client:{name:"Grupo Comercial Sinaloa", phone:"667 800 4321", email:"admin@gcsinaloa.mx"},
+      items:[{service:"Impresión offset 4x0", qty:10, unitPrice:680, subtotal:6800}],
+      subtotal:6800, iva:1088, total:7888, status:"pendiente", notes:""},
+  ],
+  workorders: [
+    {id:uid("ot"), folio:"OT-2019", date: todayISO(), client:"Grupo Comercial Sinaloa", quoteFolio:null,
+      items:[{service:"Impresión offset 4x0", qty:10, notes:"Trípticos a color"}], status:"terminado", assignedTo:"Héctor Manuel Zazueta", dueDate: todayISO(), notes:"Entregado en planta."},
+    {id:uid("ot"), folio:"OT-2027", date: todayISO(), client:"Constructora Altiva", quoteFolio:null,
+      items:[{service:"Gran formato (lona)", qty:12, notes:"Lonas para caseta de obra"}], status:"en_proceso", assignedTo:"Jorge Alberto Lizárraga", dueDate: todayISO(), notes:""},
+    {id:uid("ot"), folio:"OT-2031", date: todayISO(), client:"Farmacias del Valle", quoteFolio:"COT-1042",
+      items:[{service:"Etiquetas autoadheribles", qty:5, notes:"Etiqueta de producto, rollo"},{service:"Diseño editorial", qty:2, notes:"Ajuste de arte final"}],
+      status:"pendiente", assignedTo:"", dueDate:"", notes:"Convertida desde cotización COT-1042."},
+  ],
+  meta:{ quoteSeq:1044, otSeq:2032 }
+};
+
+/* ================= Estado + persistencia ================= */
+const STORE_KEY = "erp_imprenta_v1";
+let state = null;
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){ state = JSON.parse(raw); return; }
+  }catch(e){ /* ignora storage corrupto */ }
+  state = JSON.parse(JSON.stringify(SEED));
+}
+let saveTimer=null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){ /* almacenamiento no disponible */ }
+  }, 150);
+}
+
+/* ================= Navegación ================= */
+const NAV = [
+  {group:"General", items:[
+    {key:"dashboard", label:"Inicio", icon:"⊙"},
+  ]},
+  {group:"Comercial", items:[
+    {key:"cotizador", label:"Cotizador", icon:"⊙"},
+    {key:"cotizaciones", label:"Cotizaciones", icon:"⊙"},
+    {key:"ordenes", label:"Órdenes de trabajo", icon:"⊙"},
+    {key:"servicios", label:"Servicios y costos", icon:"⊙"},
+  ]},
+  {group:"Operación", items:[
+    {key:"inventario", label:"Inventario y mermas", icon:"⊙"},
+    {key:"compras", label:"Compras", icon:"⊙"},
+    {key:"proveedores", label:"Proveedores", icon:"⊙"},
+  ]},
+  {group:"Administración", items:[
+    {key:"finanzas", label:"Ingresos y egresos", icon:"⊙"},
+    {key:"rh", label:"Recursos humanos", icon:"⊙"},
+  ]},
+];
+let currentView = "dashboard";
+let inventoryTab = "materiales";
+
+function renderNav(){
+  const nav = $("#nav");
+  nav.innerHTML = NAV.map(g => `
+    <div class="nav-group-title">${esc(g.group)}</div>
+    ${g.items.map(it => `
+      <button class="nav-item ${it.key===currentView?'active':''}" data-view="${it.key}">
+        <span class="dot"></span><span>${esc(it.label)}</span>
+      </button>
+    `).join("")}
+  `).join("");
+  $$(".nav-item", nav).forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      currentView = btn.dataset.view;
+      closeSidebarMobile();
+      render();
+    });
+  });
+}
+
+function closeSidebarMobile(){
+  $("#sidebar").classList.remove("open");
+  $("#scrim").classList.remove("open");
+}
+$("#menuBtn").addEventListener("click", ()=>{
+  $("#sidebar").classList.add("open");
+  $("#scrim").classList.add("open");
+});
+$("#scrim").addEventListener("click", closeSidebarMobile);
+
+/* ================= Modal genérico ================= */
+function openModal({title, bodyHTML, footHTML, wide}){
+  $("#modalTitle").textContent = title;
+  $("#modalBody").innerHTML = bodyHTML;
+  $("#modalFoot").innerHTML = footHTML || "";
+  $("#modal").classList.toggle("wide", !!wide);
+  $("#overlay").classList.add("open");
+}
+function closeModal(){ $("#overlay").classList.remove("open"); }
+$("#modalClose").addEventListener("click", closeModal);
+$("#overlay").addEventListener("click", (e)=>{ if(e.target.id==="overlay") closeModal(); });
+
+function confirmAction(message, onConfirm, opts){
+  opts = opts || {};
+  openModal({
+    title: opts.title || "Confirmar acción",
+    bodyHTML: `<p style="margin:0;font-size:13.5px;">${esc(message)}</p>`,
+    footHTML: `<button class="btn" data-cancel>Cancelar</button><button class="btn btn-danger-solid" id="confirmYesBtn">${esc(opts.confirmLabel || "Sí, continuar")}</button>`
+  });
+  $("#confirmYesBtn").addEventListener("click", ()=>{ closeModal(); onConfirm(); });
+}
+
+/* ================= Helpers de UI compartidos ================= */
+function tagForStatus(status){
+  const map = {
+    activo:["tag-green","Activo"], incapacidad:["tag-yellow","Incapacidad"], baja:["tag-grey","Baja"],
+    disponible:["tag-cyan","Disponible"], reutilizado:["tag-green","Reutilizado"], desechado:["tag-grey","Desechado"],
+    pendiente:["tag-yellow","Pendiente"], en_proceso:["tag-cyan","En proceso"], terminado:["tag-green","Terminado"], entregado:["tag-green","Entregado"],
+    aprobada:["tag-green","Aprobada"], rechazada:["tag-red","Rechazada"], convertida:["tag-cyan","Convertida"],
+    recibida:["tag-green","Recibida"],
+  };
+  const [cls,label] = map[status] || ["tag-grey", status];
+  return `<span class="tag ${cls}">${esc(label)}</span>`;
+}
+function setPage(title, crumb, actionsHTML){
+  $("#pageTitle").textContent = title;
+  $("#crumb").textContent = crumb;
+  $("#pageActions").innerHTML = actionsHTML || "";
+}
+function emptyState(icon, text){
+  return `<div class="empty"><div class="big">${icon}</div>${esc(text)}</div>`;
+}
+
+/* ================= DASHBOARD ================= */
+function viewDashboard(){
+  setPage("Inicio","registro /", "");
+  const ingresos = state.transactions.filter(t=>t.type==="ingreso").reduce((a,b)=>a+b.amount,0);
+  const egresos = state.transactions.filter(t=>t.type==="egreso").reduce((a,b)=>a+b.amount,0);
+  const otAbiertas = state.workorders.filter(o=>o.status!=="terminado" && o.status!=="entregado").length;
+  const bajoStock = state.materials.filter(m=>m.stock<=m.minStock).length;
+  const cotPend = state.quotes.filter(q=>q.status==="pendiente").length;
+  const empleadosActivos = state.employees.filter(e=>e.status==="activo").length;
+
+  return `
+    <div class="cards-row">
+      <div class="kpi"><div class="label">Balance del mes</div><div class="value">${fmtMoney(ingresos-egresos)}</div><div class="sub">Ingresos ${fmtMoney(ingresos)} · Egresos ${fmtMoney(egresos)}</div></div>
+      <div class="kpi"><div class="label">Órdenes de trabajo abiertas</div><div class="value">${otAbiertas}</div><div class="sub">de ${state.workorders.length} totales</div></div>
+      <div class="kpi"><div class="label">Cotizaciones pendientes</div><div class="value">${cotPend}</div><div class="sub">esperando respuesta del cliente</div></div>
+      <div class="kpi"><div class="label">Materiales bajo stock mínimo</div><div class="value">${bajoStock}</div><div class="sub">de ${state.materials.length} materiales</div></div>
+      <div class="kpi"><div class="label">Colaboradores activos</div><div class="value">${empleadosActivos}</div><div class="sub">de ${state.employees.length} en nómina</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>Órdenes de trabajo recientes</h3><button class="btn btn-sm" data-goto="ordenes">Ver todas</button></div>
+      <div class="panel-body no-pad">
+        <table>
+          <thead><tr><th>Folio</th><th>Cliente</th><th>Estado</th><th>Entrega</th></tr></thead>
+          <tbody>
+            ${state.workorders.slice(0,5).map(o=>`
+              <tr><td class="mono">${esc(o.folio)}</td><td>${esc(o.client)}</td><td>${tagForStatus(o.status)}</td><td>${o.dueDate?fmtDate(o.dueDate):"Sin definir"}</td></tr>
+            `).join("") || `<tr><td colspan="4">${emptyState("🗂️","Aún no hay órdenes de trabajo.")}</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>Materiales cerca del mínimo</h3><button class="btn btn-sm" data-goto="inventario">Ver inventario</button></div>
+      <div class="panel-body no-pad">
+        <table>
+          <thead><tr><th>Material</th><th>Existencia</th><th>Mínimo</th><th>Proveedor</th></tr></thead>
+          <tbody>
+            ${state.materials.filter(m=>m.stock<=m.minStock*1.3).slice(0,5).map(m=>`
+              <tr><td>${esc(m.name)}</td><td class="num">${m.stock} ${esc(m.unit)}</td><td class="num">${m.minStock} ${esc(m.unit)}</td><td>${esc(m.supplier)}</td></tr>
+            `).join("") || `<tr><td colspan="4">${emptyState("📦","Ningún material cerca del mínimo.")}</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+/* ================= SERVICIOS Y COSTOS ================= */
+function viewServicios(){
+  setPage("Servicios y costos","registro / comercial /",
+    `<button class="btn btn-primary" id="addServicio">+ Nuevo servicio</button>`);
+  const rows = state.services.map(s=>{
+    const margen = s.price>0 ? (((s.price-s.cost)/s.price)*100).toFixed(0) : "0";
+    return `<tr>
+      <td>${esc(s.name)}</td>
+      <td><span class="tag tag-grey">${esc(s.category)}</span></td>
+      <td>${esc(s.unit)}</td>
+      <td class="num">${fmtMoney(s.cost)}</td>
+      <td class="num">${fmtMoney(s.price)}</td>
+      <td class="num">${margen}%</td>
+      <td>${s.active?'<span class="tag tag-green">Activo</span>':'<span class="tag tag-grey">Inactivo</span>'}</td>
+      <td><div class="row-actions">
+        <button class="btn btn-sm" data-edit-servicio="${s.id}">Editar</button>
+        <button class="btn btn-sm btn-danger" data-del-servicio="${s.id}">Eliminar</button>
+      </div></td>
+    </tr>`;
+  }).join("");
+  return `
+    <div class="panel">
+      <div class="panel-head"><h3>Catálogo de servicios</h3><span class="hint">${state.services.length} servicios</span></div>
+      <div class="panel-body no-pad">
+        <table>
+          <thead><tr><th>Servicio</th><th>Categoría</th><th>Unidad</th><th>Costo</th><th>Precio</th><th>Margen</th><th>Estado</th><th></th></tr></thead>
+          <tbody>${rows || `<tr><td colspan="8">${emptyState("🖨️","Todavía no das de alta ningún servicio.")}</td></tr>`}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+function servicioForm(s){
+  s = s || {name:"",category:"",unit:"pieza",cost:"",price:"",active:true};
+  const unitOptions = ["m²","m lineal","pieza","millar","minutos"];
+  return `
+    <div class="field-row">
+      <div class="field"><label>Nombre del servicio</label><input id="f_name" value="${esc(s.name)}" placeholder="Ej. Impresión offset 4x0"></div>
+      <div class="field"><label>Categoría</label><input id="f_category" value="${esc(s.category)}" placeholder="Ej. Offset, Digital, Acabados"></div>
+    </div>
+    <div class="field-row3">
+      <div class="field"><label>Unidad</label>
+        <select id="f_unit">
+          ${unitOptions.map(u=>`<option value="${esc(u)}" ${s.unit===u?"selected":""}>${esc(u)}</option>`).join("")}
+        </select>
+      </div>
+      <div class="field"><label>Costo (MXN)</label><input id="f_cost" type="number" step="0.01" value="${s.cost}"></div>
+      <div class="field"><label>Precio de venta (MXN)</label><input id="f_price" type="number" step="0.01" value="${s.price}"></div>
+    </div>
+    <label class="checkline"><input type="checkbox" id="f_active" ${s.active?"checked":""}> Servicio activo (visible en el cotizador)</label>
+  `;
+}
+function openServicioModal(id){
+  const s = id ? state.services.find(x=>x.id===id) : null;
+  openModal({
+    title: s ? "Editar servicio" : "Nuevo servicio",
+    bodyHTML: servicioForm(s),
+    footHTML: `<button class="btn" data-cancel>Cancelar</button><button class="btn btn-primary" id="saveServicio">Guardar</button>`,
+  });
+  $("#saveServicio").addEventListener("click", ()=>{
+    const name = $("#f_name").value.trim();
+    if(!name){ toast("Ponle un nombre al servicio."); return; }
+    const data = { name, category: $("#f_category").value.trim()||"General", unit: $("#f_unit").value.trim()||"pieza",
+      cost: parseFloat($("#f_cost").value)||0, price: parseFloat($("#f_price").value)||0, active: $("#f_active").checked };
+    if(s){ Object.assign(s, data); toast("Servicio actualizado."); }
+    else{ state.services.push({id:uid("srv"), ...data}); toast("Servicio agregado."); }
+    save(); closeModal(); render();
+  });
+}
+
+/* ================= INVENTARIO Y MERMAS ================= */
+function viewInventario(){
+  setPage("Inventario y mermas","registro / operación /",
+    inventoryTab==="materiales"
+      ? `<button class="btn btn-primary" id="addMaterial">+ Nuevo material</button>`
+      : `<button class="btn btn-primary" id="addMerma">+ Registrar merma</button>`);
+  const tabs = `
+    <div class="tabs">
+      <button class="tab ${inventoryTab==='materiales'?'active':''}" data-inv-tab="materiales">Materiales</button>
+      <button class="tab ${inventoryTab==='mermas'?'active':''}" data-inv-tab="mermas">Mermas y desperdicios</button>
+    </div>`;
+  if(inventoryTab==="materiales"){
+    const rows = state.materials.map(m=>{
+      const low = m.stock<=m.minStock;
+      return `<tr>
+        <td>${esc(m.name)}</td><td><span class="tag tag-grey">${esc(m.category)}</span></td>
+        <td class="num">${m.stock} ${esc(m.unit)}</td>
+        <td class="num">${m.minStock} ${esc(m.unit)}</td>
+        <td class="num">${fmtMoney(m.unitCost)}</td>
+        <td>${esc(m.supplier)}</td>
+        <td>${low?'<span class="tag tag-red">Bajo mínimo</span>':'<span class="tag tag-green">Correcto</span>'}</td>
+        <td><div class="row-actions">
+          <button class="btn btn-sm" data-edit-material="${m.id}">Editar</button>
+          <button class="btn btn-sm btn-danger" data-del-material="${m.id}">Eliminar</button>
+        </div></td>
+      </tr>`;
+    }).join("");
+    return tabs + `
+      <div class="panel">
+        <div class="panel-head"><h3>Materiales en inventario</h3><span class="hint">${state.materials.length} materiales</span></div>
+        <div class="panel-body no-pad">
+          <table><thead><tr><th>Material</th><th>Categoría</th><th>Existencia</th><th>Mínimo</th><th>Costo unitario</th><th>Proveedor</th><th>Estado</th><th></th></tr></thead>
+          <tbody>${rows || `<tr><td colspan="8">${emptyState("📦","Sin materiales registrados.")}</td></tr>`}</tbody></table>
+        </div>
+      </div>`;
+  }else{
+    const rows = state.waste.map(w=>`
+      <tr>
+        <td>${fmtDate(w.date)}</td><td>${esc(w.material)}</td>
+        <td class="num">${w.qty} ${esc(w.unit)}</td>
+        <td>${esc(w.origin)}</td>
+        <td>${w.reciclable?'<span class="tag tag-green">Reciclable</span>':'<span class="tag tag-grey">No reciclable</span>'}</td>
+        <td>${tagForStatus(w.status)}</td>
+        <td><div class="row-actions">
+          <button class="btn btn-sm" data-edit-merma="${w.id}">Editar</button>
+          <button class="btn btn-sm btn-danger" data-del-merma="${w.id}">Eliminar</button>
+        </div></td>
+      </tr>`).join("");
+    const disponible = state.waste.filter(w=>w.status==="disponible" && w.reciclable).length;
+    return tabs + `
+      <div class="helpbar">♻️ ${disponible} lote(s) de merma reciclable disponibles para reutilizar en producción u ofrecer a recicladores.</div>
+      <div class="panel">
+        <div class="panel-head"><h3>Mermas y desperdicios</h3><span class="hint">${state.waste.length} registros</span></div>
+        <div class="panel-body no-pad">
+          <table><thead><tr><th>Fecha</th><th>Material / desperdicio</th><th>Cantidad</th><th>Origen</th><th>Tipo</th><th>Estado</th><th></th></tr></thead>
+          <tbody>${rows || `<tr><td colspan="7">${emptyState("♻️","Sin mermas registradas.")}</td></tr>`}</tbody></table>
+        </div>
+      </div>`;
+  }
+}
+function materialForm(m){
+  m = m || {name:"",category:"",unit:"pieza",stock:"",minStock:"",unitCost:"",supplier:""};
+  const supplierOptions = state.suppliers.map(s=>`<option value="${esc(s.name)}" ${m.supplier===s.name?"selected":""}>${esc(s.name)}</option>`).join("");
+  return `
+    <div class="field-row">
+      <div class="field"><label>Nombre del material</label><input id="f_name" value="${esc(m.name)}" placeholder="Ej. Papel bond 90g"></div>
+      <div class="field"><label>Categoría</label><input id="f_category" value="${esc(m.category)}" placeholder="Papel, Tinta, Gran formato..."></div>
+    </div>
+    <div class="field-row3">
+      <div class="field"><label>Unidad</label><input id="f_unit" value="${esc(m.unit)}" placeholder="resma / kg / m²"></div>
+      <div class="field"><label>Existencia actual</label><input id="f_stock" type="number" step="0.01" value="${m.stock}"></div>
+      <div class="field"><label>Existencia mínima</label><input id="f_minStock" type="number" step="0.01" value="${m.minStock}"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Costo unitario (MXN)</label><input id="f_unitCost" type="number" step="0.01" value="${m.unitCost}"></div>
+      <div class="field"><label>Proveedor principal</label><select id="f_supplier"><option value="">Sin asignar</option>${supplierOptions}</select></div>
+    </div>
+  `;
+}
+function openMaterialModal(id){
+  const m = id ? state.materials.find(x=>x.id===id) : null;
+  openModal({ title: m?"Editar material":"Nuevo material", bodyHTML: materialForm(m),
+    footHTML:`<button class="btn" data-cancel>Cancelar</button><button class="btn btn-primary" id="saveMaterial">Guardar</button>` });
+  $("#saveMaterial").addEventListener("click", ()=>{
+    const name = $("#f_name").value.trim();
+    if(!name){ toast("Ponle un nombre al material."); return; }
+    const data = { name, category:$("#f_category").value.trim()||"General", unit:$("#f_unit").value.trim()||"pieza",
+      stock: parseFloat($("#f_stock").value)||0, minStock: parseFloat($("#f_minStock").value)||0,
+      unitCost: parseFloat($("#f_unitCost").value)||0, supplier: $("#f_supplier").value };
+    if(m){ Object.assign(m,data); toast("Material actualizado."); } else { state.materials.push({id:uid("mat"),...data}); toast("Material agregado."); }
+    save(); closeModal(); render();
+  });
+}
+function mermaForm(w){
+  w = w || {date:todayISO(),material:"",qty:"",unit:"kg",origin:"",reciclable:true,status:"disponible",notes:""};
+  return `
+    <div class="field-row">
+      <div class="field"><label>Fecha</label><input id="f_date" type="date" value="${w.date}"></div>
+      <div class="field"><label>Origen (OT, compra, etc.)</label><input id="f_origin" value="${esc(w.origin)}" placeholder="Ej. OT-2027"></div>
+    </div>
+    <div class="field"><label>Material o desperdicio</label><input id="f_material" value="${esc(w.material)}" placeholder="Ej. Recorte de cartulina"></div>
+    <div class="field-row3">
+      <div class="field"><label>Cantidad</label><input id="f_qty" type="number" step="0.01" value="${w.qty}"></div>
+      <div class="field"><label>Unidad</label><input id="f_unit" value="${esc(w.unit)}" placeholder="kg / m² / pieza"></div>
+      <div class="field"><label>Estado</label>
+        <select id="f_status">
+          <option value="disponible" ${w.status==="disponible"?"selected":""}>Disponible</option>
+          <option value="reutilizado" ${w.status==="reutilizado"?"selected":""}>Reutilizado</option>
+          <option value="desechado" ${w.status==="desechado"?"selected":""}>Desechado</option>
+        </select>
+      </div>
+    </div>
+    <label class="checkline"><input type="checkbox" id="f_reciclable" ${w.reciclable?"checked":""}> Es reciclable o reutilizable</label>
+    <div class="field" style="margin-top:12px;"><label>Notas</label><textarea id="f_notes">${esc(w.notes)}</textarea></div>
+  `;
+}
+function openMermaModal(id){
+  const w = id ? state.waste.find(x=>x.id===id) : null;
+  openModal({ title: w?"Editar registro de merma":"Registrar merma o desperdicio", bodyHTML: mermaForm(w),
+    footHTML:`<button class="btn" data-cancel>Cancelar</button><button class="btn btn-primary" id="saveMerma">Guardar</button>` });
+  $("#saveMerma").addEventListener("click", ()=>{
+    const material = $("#f_material").value.trim();
+    if(!material){ toast("Describe el material o desperdicio."); return; }
+    const data = { date:$("#f_date").value||todayISO(), material, qty:parseFloat($("#f_qty").value)||0,
+      unit:$("#f_unit").value.trim()||"kg", origin:$("#f_origin").value.trim()||"—",
+      reciclable:$("#f_reciclable").checked, status:$("#f_status").value, notes:$("#f_notes").value.trim() };
+    if(w){ Object.assign(w,data); toast("Registro actualizado."); } else { state.waste.push({id:uid("mer"),...data}); toast("Merma registrada."); }
+    save(); closeModal(); render();
+  });
+}
+
+/* ================= PROVEEDORES ================= */
+function viewProveedores(){
+  setPage("Proveedores","registro / operación /", `<button class="btn btn-primary" id="addProveedor">+ Nuevo proveedor</button>`);
+  const rows = state.suppliers.map(p=>`
+    <tr>
+      <td>${esc(p.name)}</td><td>${esc(p.contact)}</td><td class="mono">${esc(p.phone)}</td>
+      <td>${esc(p.email)}</td><td>${esc(p.materials)}</td><td><span class="tag tag-grey">${esc(p.terms)}</span></td>
+      <td><div class="row-actions">
+        <button class="btn btn-sm" data-edit-proveedor="${p.id}">Editar</button>
+        <button class="btn btn-sm btn-danger" data-del-proveedor="${p.id}">Eliminar</button>
+      </div></td>
+    </tr>`).join("");
+  return `
+    <div class="panel">
+      <div class="panel-head"><h3>Directorio de proveedores</h3><span class="hint">${state.suppliers.length} proveedores</span></div>
+      <div class="panel-body no-pad">
+        <table><thead><tr><th>Proveedor</th><th>Contacto</th><th>Teléfono</th><th>Correo</th><th>Materiales</th><th>Condiciones</th><th></th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="7">${emptyState("🚚","Sin proveedores registrados.")}</td></tr>`}</tbody></table>
+      </div>
+    </div>`;
+}
+function proveedorForm(p){
+  p = p || {name:"",contact:"",phone:"",email:"",materials:"",terms:"Contado"};
+  return `
+    <div class="field"><label>Nombre del proveedor</label><input id="f_name" value="${esc(p.name)}"></div>
+    <div class="field-row">
+      <div class="field"><label>Contacto</label><input id="f_contact" value="${esc(p.contact)}"></div>
+      <div class="field"><label>Teléfono</label><input id="f_phone" value="${esc(p.phone)}"></div>
+    </div>
+    <div class="field"><label>Correo</label><input id="f_email" value="${esc(p.email)}"></div>
+    <div class="field"><label>Materiales que provee</label><input id="f_materials" value="${esc(p.materials)}" placeholder="Papel, tintas, vinil..."></div>
+    <div class="field"><label>Condiciones de pago</label><input id="f_terms" value="${esc(p.terms)}" placeholder="Contado / Crédito 30 días"></div>
+  `;
+}
+function openProveedorModal(id){
+  const p = id ? state.suppliers.find(x=>x.id===id) : null;
+  openModal({ title: p?"Editar proveedor":"Nuevo proveedor", bodyHTML: proveedorForm(p),
+    footHTML:`<button class="btn" data-cancel>Cancelar</button><button class="btn btn-primary" id="saveProveedor">Guardar</button>` });
+  $("#saveProveedor").addEventListener("click", ()=>{
+    const name = $("#f_name").value.trim();
+    if(!name){ toast("Ponle un nombre al proveedor."); return; }
+    const data = { name, contact:$("#f_contact").value.trim(), phone:$("#f_phone").value.trim(),
+      email:$("#f_email").value.trim(), materials:$("#f_materials").value.trim(), terms:$("#f_terms").value.trim()||"Contado" };
+    if(p){ Object.assign(p,data); toast("Proveedor actualizado."); } else { state.suppliers.push({id:uid("prv"),...data}); toast("Proveedor agregado."); }
+    save(); closeModal(); render();
+  });
+}
+
+/* ================= COMPRAS ================= */
+let purchaseDraftItems = [];
+function viewCompras(){
+  setPage("Compras","registro / operación /", `<button class="btn btn-primary" id="addCompra">+ Nueva compra</button>`);
+  const rows = state.purchases.map(c=>`
+    <tr>
+      <td class="mono">${fmtDate(c.date)}</td><td>${esc(c.supplier)}</td>
+      <td>${c.items.map(i=>esc(i.material)+" ("+i.qty+")").join(", ")}</td>
+      <td class="num">${fmtMoney(c.total)}</td>
+      <td>${tagForStatus(c.status)}</td>
+      <td><div class="row-actions">
+        ${c.status==="pendiente"?`<button class="btn btn-sm" data-recibir-compra="${c.id}">Marcar recibida</button>`:""}
+        <button class="btn btn-sm btn-danger" data-del-compra="${c.id}">Eliminar</button>
+      </div></td>
+    </tr>`).join("");
+  return `
+    <div class="panel">
+      <div class="panel-head"><h3>Órdenes de compra</h3><span class="hint">${state.purchases.length} compras</span></div>
+      <div class="panel-body no-pad">
+        <table><thead><tr><th>Fecha</th><th>Proveedor</th><th>Materiales</th><th>Total</th><th>Estado</th><th></th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="6">${emptyState("🧾","Sin compras registradas.")}</td></tr>`}</tbody></table>
+      </div>
+    </div>`;
+}
+function purchaseLineRow(idx, item){
+  const materialOptions = state.materials.map(m=>`<option value="${esc(m.name)}" data-cost="${m.unitCost}" ${item.material===m.name?"selected":""}>${esc(m.name)}</option>`).join("");
+  return `<tr data-line="${idx}">
+    <td><select class="line-material">${materialOptions}</select></td>
+    <td><input class="line-qty num" type="number" step="0.01" value="${item.qty}" style="width:80px"></td>
+    <td><input class="line-cost num" type="number" step="0.01" value="${item.unitCost}" style="width:90px"></td>
+    <td class="num line-sub">${fmtMoney(item.qty*item.unitCost)}</td>
+    <td><button class="btn btn-sm btn-ghost btn-danger" data-remove-line="${idx}">✕</button></td>
+  </tr>`;
+}
+function renderPurchaseLines(){
+  const tbody = $("#purchaseLines");
+  if(!tbody) return;
+  tbody.innerHTML = purchaseDraftItems.map((it,idx)=>purchaseLineRow(idx,it)).join("");
+  let total = purchaseDraftItems.reduce((a,b)=>a+(b.qty*b.unitCost),0);
+  $("#purchaseTotal").textContent = fmtMoney(total);
+  $$(".line-material", tbody).forEach((sel,idx)=>{
+    sel.addEventListener("change", ()=>{
+      purchaseDraftItems[idx].material = sel.value;
+      const opt = sel.selectedOptions[0];
+      if(opt && opt.dataset.cost){ purchaseDraftItems[idx].unitCost = parseFloat(opt.dataset.cost)||0; }
+      renderPurchaseLines();
+    });
+  });
+  $$(".line-qty", tbody).forEach((inp,idx)=>{ inp.addEventListener("input", ()=>{ purchaseDraftItems[idx].qty = parseFloat(inp.value)||0; renderPurchaseLines(); }); });
+  $$(".line-cost", tbody).forEach((inp,idx)=>{ inp.addEventListener("input", ()=>{ purchaseDraftItems[idx].unitCost = parseFloat(inp.value)||0; renderPurchaseLines(); }); });
+  $$("[data-remove-line]", tbody).forEach(btn=>{ btn.addEventListener("click", ()=>{ purchaseDraftItems.splice(parseInt(btn.dataset.removeLine),1); renderPurchaseLines(); }); });
+}
+function openCompraModal(){
+  purchaseDraftItems = state.materials[0] ? [{material:state.materials[0].name, qty:1, unitCost:state.materials[0].unitCost}] : [];
+  const supplierOptions = state.suppliers.map(s=>`<option value="${esc(s.name)}">${esc(s.name)}</option>`).join("");
+  openModal({
+    title:"Nueva orden de compra", wide:true,
+    bodyHTML:`
+      <div class="field-row">
+        <div class="field"><label>Proveedor</label><select id="f_supplier">${supplierOptions}</select></div>
+        <div class="field"><label>Fecha</label><input id="f_date" type="date" value="${todayISO()}"></div>
+      </div>
+      <table class="line-table">
+        <thead><tr><th>Material</th><th>Cantidad</th><th>Costo unit.</th><th>Subtotal</th><th></th></tr></thead>
+        <tbody id="purchaseLines"></tbody>
+      </table>
+      <button class="btn btn-sm" id="addLine" style="margin-top:10px;">+ Agregar material</button>
+      <div style="text-align:right;margin-top:14px;font-size:15px;">Total: <strong class="mono" id="purchaseTotal"></strong></div>
+    `,
+    footHTML:`<button class="btn" data-cancel>Cancelar</button><button class="btn btn-primary" id="saveCompra">Guardar compra</button>`
+  });
+  renderPurchaseLines();
+  $("#addLine").addEventListener("click", ()=>{
+    const m = state.materials[0];
+    purchaseDraftItems.push({material: m?m.name:"", qty:1, unitCost:m?m.unitCost:0});
+    renderPurchaseLines();
+  });
+  $("#saveCompra").addEventListener("click", ()=>{
+    if(purchaseDraftItems.length===0){ toast("Agrega al menos un material."); return; }
+    const total = purchaseDraftItems.reduce((a,b)=>a+(b.qty*b.unitCost),0);
+    state.purchases.push({ id:uid("cmp"), date:$("#f_date").value||todayISO(), supplier:$("#f_supplier").value,
+      items: JSON.parse(JSON.stringify(purchaseDraftItems)), total, status:"pendiente" });
+    save(); closeModal(); render(); toast("Compra registrada.");
+  });
+}
+
+/* ================= INGRESOS Y EGRESOS ================= */
+function viewFinanzas(){
+  setPage("Ingresos y egresos","registro / administración /", `<button class="btn btn-primary" id="addMovimiento">+ Nuevo movimiento</button>`);
+  const ingresos = state.transactions.filter(t=>t.type==="ingreso").reduce((a,b)=>a+b.amount,0);
+  const egresos = state.transactions.filter(t=>t.type==="egreso").reduce((a,b)=>a+b.amount,0);
+  const rows = [...state.transactions].sort((a,b)=> (a.date<b.date?1:-1)).map(t=>`
+    <tr>
+      <td class="mono">${fmtDate(t.date)}</td>
+      <td>${t.type==="ingreso"?'<span class="tag tag-green">Ingreso</span>':'<span class="tag tag-red">Egreso</span>'}</td>
+      <td>${esc(t.category)}</td><td>${esc(t.description)}</td>
+      <td class="num">${t.type==="ingreso"?"+":"−"} ${fmtMoney(Math.abs(t.amount))}</td>
+      <td><div class="row-actions"><button class="btn btn-sm btn-danger" data-del-mov="${t.id}">Eliminar</button></div></td>
+    </tr>`).join("");
+  return `
+    <div class="cards-row">
+      <div class="kpi"><div class="label">Ingresos totales</div><div class="value" style="color:var(--green)">${fmtMoney(ingresos)}</div></div>
+      <div class="kpi"><div class="label">Egresos totales</div><div class="value" style="color:var(--red)">${fmtMoney(egresos)}</div></div>
+      <div class="kpi"><div class="label">Balance</div><div class="value">${fmtMoney(ingresos-egresos)}</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Movimientos</h3><span class="hint">${state.transactions.length} registros</span></div>
+      <div class="panel-body no-pad">
+        <table><thead><tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Descripción</th><th>Monto</th><th></th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="6">${emptyState("💵","Sin movimientos registrados.")}</td></tr>`}</tbody></table>
+      </div>
+    </div>`;
+}
+function movimientoForm(){
+  return `
+    <div class="field-row">
+      <div class="field"><label>Tipo</label><select id="f_type"><option value="ingreso">Ingreso</option><option value="egreso">Egreso</option></select></div>
+      <div class="field"><label>Fecha</label><input id="f_date" type="date" value="${todayISO()}"></div>
+    </div>
+    <div class="field"><label>Categoría</label><input id="f_category" placeholder="Venta, Nómina, Compra de insumos..."></div>
+    <div class="field"><label>Descripción</label><input id="f_description" placeholder="Detalle del movimiento"></div>
+    <div class="field"><label>Monto (MXN)</label><input id="f_amount" type="number" step="0.01"></div>
+  `;
+}
+function openMovimientoModal(){
+  openModal({ title:"Nuevo movimiento", bodyHTML: movimientoForm(),
+    footHTML:`<button class="btn" data-cancel>Cancelar</button><button class="btn btn-primary" id="saveMov">Guardar</button>` });
+  $("#saveMov").addEventListener("click", ()=>{
+    const amount = parseFloat($("#f_amount").value)||0;
+    if(amount<=0){ toast("Indica un monto mayor a cero."); return; }
+    state.transactions.push({ id:uid("mov"), date:$("#f_date").value||todayISO(), type:$("#f_type").value,
+      category:$("#f_category").value.trim()||"General", description:$("#f_description").value.trim()||"—", amount, ref:"Manual" });
+    save(); closeModal(); render(); toast("Movimiento registrado.");
+  });
+}
+
+/* ================= RH ================= */
+function viewRH(){
+  setPage("Recursos humanos","registro / administración /", `<button class="btn btn-primary" id="addEmpleado">+ Nuevo colaborador</button>`);
+  const nomina = state.employees.filter(e=>e.status==="activo").reduce((a,b)=>a+b.salary,0);
+  const rows = state.employees.map(e=>`
+    <tr>
+      <td>${esc(e.name)}</td><td>${esc(e.position)}</td><td><span class="tag tag-grey">${esc(e.department)}</span></td>
+      <td class="num">${fmtMoney(e.salary)}</td><td class="mono">${esc(e.phone)}</td><td>${fmtDate(e.startDate)}</td>
+      <td>${tagForStatus(e.status)}</td>
+      <td><div class="row-actions">
+        <button class="btn btn-sm" data-edit-empleado="${e.id}">Editar</button>
+        <button class="btn btn-sm btn-danger" data-del-empleado="${e.id}">Eliminar</button>
+      </div></td>
+    </tr>`).join("");
+  return `
+    <div class="cards-row">
+      <div class="kpi"><div class="label">Colaboradores</div><div class="value">${state.employees.length}</div></div>
+      <div class="kpi"><div class="label">Activos</div><div class="value">${state.employees.filter(e=>e.status==="activo").length}</div></div>
+      <div class="kpi"><div class="label">Nómina mensual estimada</div><div class="value">${fmtMoney(nomina*2)}</div><div class="sub">2 quincenas</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Plantilla</h3><span class="hint">${state.employees.length} colaboradores</span></div>
+      <div class="panel-body no-pad">
+        <table><thead><tr><th>Nombre</th><th>Puesto</th><th>Área</th><th>Sueldo quincenal</th><th>Teléfono</th><th>Ingreso</th><th>Estado</th><th></th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="8">${emptyState("👷","Sin colaboradores registrados.")}</td></tr>`}</tbody></table>
+      </div>
+    </div>`;
+}
+function empleadoForm(e){
+  e = e || {name:"",position:"",department:"Producción",salary:"",phone:"",startDate:todayISO(),status:"activo"};
+  return `
+    <div class="field"><label>Nombre completo</label><input id="f_name" value="${esc(e.name)}"></div>
+    <div class="field-row">
+      <div class="field"><label>Puesto</label><input id="f_position" value="${esc(e.position)}"></div>
+      <div class="field"><label>Área</label><input id="f_department" value="${esc(e.department)}" placeholder="Producción, Ventas, Diseño..."></div>
+    </div>
+    <div class="field-row3">
+      <div class="field"><label>Sueldo quincenal (MXN)</label><input id="f_salary" type="number" step="0.01" value="${e.salary}"></div>
+      <div class="field"><label>Teléfono</label><input id="f_phone" value="${esc(e.phone)}"></div>
+      <div class="field"><label>Fecha de ingreso</label><input id="f_startDate" type="date" value="${e.startDate}"></div>
+    </div>
+    <div class="field"><label>Estado</label>
+      <select id="f_status">
+        <option value="activo" ${e.status==="activo"?"selected":""}>Activo</option>
+        <option value="incapacidad" ${e.status==="incapacidad"?"selected":""}>Incapacidad</option>
+        <option value="baja" ${e.status==="baja"?"selected":""}>Baja</option>
+      </select>
+    </div>
+  `;
+}
+function openEmpleadoModal(id){
+  const e = id ? state.employees.find(x=>x.id===id) : null;
+  openModal({ title: e?"Editar colaborador":"Nuevo colaborador", bodyHTML: empleadoForm(e),
+    footHTML:`<button class="btn" data-cancel>Cancelar</button><button class="btn btn-primary" id="saveEmpleado">Guardar</button>` });
+  $("#saveEmpleado").addEventListener("click", ()=>{
+    const name = $("#f_name").value.trim();
+    if(!name){ toast("Ponle un nombre al colaborador."); return; }
+    const data = { name, position:$("#f_position").value.trim(), department:$("#f_department").value.trim()||"General",
+      salary:parseFloat($("#f_salary").value)||0, phone:$("#f_phone").value.trim(), startDate:$("#f_startDate").value||todayISO(), status:$("#f_status").value };
+    if(e){ Object.assign(e,data); toast("Colaborador actualizado."); } else { state.employees.push({id:uid("emp"),...data}); toast("Colaborador agregado."); }
+    save(); closeModal(); render();
+  });
+}
+
+/* ================= COTIZADOR ================= */
+let quoteDraft = null;
+function newQuoteDraft(){
+  return { client:{name:"",phone:"",email:""}, items: [], notes:"" };
+}
+function quoteDraftTotal(){
+  const subtotal = quoteDraft.items.reduce((a,b)=>a+b.subtotal,0);
+  const iva = subtotal*0.16;
+  return { subtotal, iva, total: subtotal+iva };
+}
+function viewCotizador(){
+  if(!quoteDraft) quoteDraft = newQuoteDraft();
+  setPage("Cotizador","registro / comercial /", "");
+  const serviceOptions = state.services.filter(s=>s.active).map(s=>`<option value="${s.id}">${esc(s.name)} — ${fmtMoney(s.price)} / ${esc(s.unit)}</option>`).join("");
+  const { subtotal, iva, total } = quoteDraftTotal();
+  const lineRows = quoteDraft.items.map((it,idx)=>`
+    <tr>
+      <td>${esc(it.service)}</td>
+      <td><input class="q-qty num" data-idx="${idx}" type="number" step="1" min="1" value="${it.qty}" style="width:70px"></td>
+      <td class="num mono">${fmtMoney(it.unitPrice)}</td>
+      <td class="num mono">${fmtMoney(it.subtotal)}</td>
+      <td><button class="btn btn-sm btn-ghost btn-danger" data-q-remove="${idx}">✕</button></td>
+    </tr>`).join("");
+  return `
+    <div class="panel">
+      <div class="panel-head"><h3>Datos del cliente</h3></div>
+      <div class="panel-body">
+        <div class="field-row3">
+          <div class="field"><label>Cliente</label><input id="q_client" value="${esc(quoteDraft.client.name)}" placeholder="Razón social o nombre"></div>
+          <div class="field"><label>Teléfono</label><input id="q_phone" value="${esc(quoteDraft.client.phone)}"></div>
+          <div class="field"><label>Correo</label><input id="q_email" value="${esc(quoteDraft.client.email)}"></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Partidas</h3></div>
+      <div class="panel-body">
+        <div class="field-row">
+          <div class="field" style="grid-column:1/3"><label>Agregar servicio</label>
+            <select id="q_addService">${serviceOptions}</select>
+          </div>
+        </div>
+        <button class="btn" id="q_addLine">+ Agregar al presupuesto</button>
+        <table style="margin-top:14px;">
+          <thead><tr><th>Servicio</th><th>Cantidad</th><th>Precio unit.</th><th>Subtotal</th><th></th></tr></thead>
+          <tbody>${lineRows || `<tr><td colspan="5">${emptyState("🧮","Agrega servicios para armar el presupuesto.")}</td></tr>`}</tbody>
+        </table>
+        <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+          <div style="min-width:220px;font-size:13.5px;">
+            <div style="display:flex;justify-content:space-between;padding:4px 0;"><span>Subtotal</span><span class="mono">${fmtMoney(subtotal)}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:4px 0;"><span>IVA (16%)</span><span class="mono">${fmtMoney(iva)}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0 0 0;border-top:1px solid var(--line);margin-top:6px;font-weight:600;"><span>Total</span><span class="mono">${fmtMoney(total)}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="field"><label>Notas para el cliente</label><textarea id="q_notes">${esc(quoteDraft.notes)}</textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn" id="q_clear">Limpiar</button>
+      <button class="btn btn-primary" id="q_generate" ${quoteDraft.items.length===0?"disabled":""}>Generar cotización</button>
+    </div>
+  `;
+}
+
+/* ================= COTIZACIONES ================= */
+function viewCotizaciones(){
+  setPage("Cotizaciones","registro / comercial /", `<button class="btn btn-primary" data-goto="cotizador">+ Nueva cotización</button>`);
+  const rows = state.quotes.map(q=>`
+    <tr>
+      <td class="mono">${esc(q.folio)}</td><td>${fmtDate(q.date)}</td><td>${esc(q.client.name)}</td>
+      <td class="num mono">${fmtMoney(q.total)}</td><td>${tagForStatus(q.status)}</td>
+      <td><div class="row-actions">
+        <button class="btn btn-sm" data-view-quote="${q.id}">Ver / PDF</button>
+        ${q.status!=="convertida" ? `<button class="btn btn-sm" data-convert-quote="${q.id}">Convertir a OT</button>` : `<button class="btn btn-sm" data-revert-quote="${q.id}">Deshacer conversión</button>`}
+        <button class="btn btn-sm btn-danger" data-del-quote="${q.id}">Eliminar</button>
+      </div></td>
+    </tr>`).join("");
+  return `
+    <div class="panel">
+      <div class="panel-head"><h3>Cotizaciones y presupuestos</h3><span class="hint">${state.quotes.length} folios</span></div>
+      <div class="panel-body no-pad">
+        <table><thead><tr><th>Folio</th><th>Fecha</th><th>Cliente</th><th>Total</th><th>Estado</th><th></th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="6">${emptyState("📄","Aún no generas cotizaciones.")}</td></tr>`}</tbody></table>
+      </div>
+    </div>`;
+}
+function quoteDetailHTML(q){
+  return `
+    <div style="margin-bottom:10px;font-size:13px;color:var(--ink-soft)">
+      <div><strong style="color:var(--ink)">${esc(q.client.name)}</strong></div>
+      <div>${esc(q.client.phone)} · ${esc(q.client.email)}</div>
+    </div>
+    <table>
+      <thead><tr><th>Servicio</th><th>Cant.</th><th>P. unitario</th><th>Subtotal</th></tr></thead>
+      <tbody>${q.items.map(it=>`<tr><td>${esc(it.service)}</td><td class="num">${it.qty}</td><td class="num mono">${fmtMoney(it.unitPrice)}</td><td class="num mono">${fmtMoney(it.subtotal)}</td></tr>`).join("")}</tbody>
+    </table>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+      <div style="min-width:200px;font-size:13.5px;">
+        <div style="display:flex;justify-content:space-between;"><span>Subtotal</span><span class="mono">${fmtMoney(q.subtotal)}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span>IVA</span><span class="mono">${fmtMoney(q.iva)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-weight:600;border-top:1px solid var(--line);padding-top:6px;margin-top:4px;"><span>Total</span><span class="mono">${fmtMoney(q.total)}</span></div>
+      </div>
+    </div>
+    ${q.notes ? `<div class="hint" style="margin-top:10px;">Notas: ${esc(q.notes)}</div>` : ""}
+  `;
+}
+function openQuoteModal(id){
+  const q = state.quotes.find(x=>x.id===id);
+  openModal({ title:`Cotización ${q.folio}`, wide:true, bodyHTML: quoteDetailHTML(q),
+    footHTML:`<button class="btn" data-cancel>Cerrar</button><button class="btn btn-primary" id="exportPdf">Generar PDF</button>` });
+  $("#exportPdf").addEventListener("click", ()=> exportQuotePDF(q));
+}
+
+function buildQuotePrintHTML(q){
+  return `
+    <div style="font-family:'IBM Plex Sans',sans-serif;color:#1E2124;max-width:680px;margin:0 auto;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1D4E89;padding-bottom:14px;margin-bottom:18px;">
+        <div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;">Registro · ERP Imprentas</div>
+          <div style="font-size:12px;color:#5B5F63;">Culiacán, Sinaloa</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;">${esc(q.folio)}</div>
+          <div style="font-size:12px;color:#5B5F63;">${fmtDate(q.date)}</div>
+        </div>
+      </div>
+      <div style="margin-bottom:16px;font-size:13px;">
+        <div style="color:#5B5F63;font-size:11px;margin-bottom:2px;">Cliente</div>
+        <div style="font-weight:600;">${esc(q.client.name)}</div>
+        <div style="color:#5B5F63;">${esc(q.client.phone)} · ${esc(q.client.email)}</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">
+        <thead><tr style="border-bottom:1px solid #D9D6CC;">
+          <th style="text-align:left;padding:6px 4px;color:#5B5F63;font-weight:500;font-size:11px;">Servicio</th>
+          <th style="text-align:right;padding:6px 4px;color:#5B5F63;font-weight:500;font-size:11px;">Cant.</th>
+          <th style="text-align:right;padding:6px 4px;color:#5B5F63;font-weight:500;font-size:11px;">P. unitario</th>
+          <th style="text-align:right;padding:6px 4px;color:#5B5F63;font-weight:500;font-size:11px;">Subtotal</th>
+        </tr></thead>
+        <tbody>
+          ${q.items.map(it=>`<tr style="border-bottom:1px solid #EFEDE6;"><td style="padding:7px 4px;">${esc(it.service)}</td><td style="padding:7px 4px;text-align:right;">${it.qty}</td><td style="padding:7px 4px;text-align:right;font-family:'IBM Plex Mono',monospace;">${fmtMoney(it.unitPrice)}</td><td style="padding:7px 4px;text-align:right;font-family:'IBM Plex Mono',monospace;">${fmtMoney(it.subtotal)}</td></tr>`).join("")}
+        </tbody>
+      </table>
+      <div style="display:flex;justify-content:flex-end;">
+        <div style="min-width:220px;font-size:13px;">
+          <div style="display:flex;justify-content:space-between;padding:3px 0;"><span>Subtotal</span><span style="font-family:'IBM Plex Mono',monospace;">${fmtMoney(q.subtotal)}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;"><span>IVA (16%)</span><span style="font-family:'IBM Plex Mono',monospace;">${fmtMoney(q.iva)}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0 0 0;border-top:2px solid #1D4E89;margin-top:6px;font-weight:700;"><span>Total</span><span style="font-family:'IBM Plex Mono',monospace;">${fmtMoney(q.total)}</span></div>
+        </div>
+      </div>
+      ${q.notes? `<div style="margin-top:18px;font-size:12px;color:#5B5F63;">Notas: ${esc(q.notes)}</div>`:""}
+      <div style="margin-top:28px;font-size:11px;color:#9A9D9F;">Cotización válida por 15 días. Precios en pesos mexicanos, incluyen IVA cuando se indica.</div>
+    </div>
+  `;
+}
+function drawQuotePDF(doc, q){
+  const marginX = 54, pageW = 612, rightX = pageW - marginX;
+  let y = 60;
+  doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(30,33,36);
+  doc.text("Registro · ERP Imprentas", marginX, y);
+  doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(91,95,99);
+  doc.text("Culiacán, Sinaloa", marginX, y+14);
+  doc.setFont("courier","bold"); doc.setFontSize(13); doc.setTextColor(30,33,36);
+  doc.text(q.folio, rightX, y, {align:"right"});
+  doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(91,95,99);
+  doc.text(fmtDate(q.date), rightX, y+14, {align:"right"});
+
+  y += 28;
+  doc.setDrawColor(29,78,137); doc.setLineWidth(1.5); doc.line(marginX, y, rightX, y);
+  y += 24;
+
+  doc.setFontSize(8.5); doc.setTextColor(91,95,99); doc.text("CLIENTE", marginX, y);
+  y += 14;
+  doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(30,33,36);
+  doc.text(String(q.client.name||"—"), marginX, y);
+  y += 14;
+  doc.setFont("helvetica","normal"); doc.setFontSize(9.5); doc.setTextColor(91,95,99);
+  doc.text(`${q.client.phone||""}  ${q.client.email? "· "+q.client.email : ""}`.trim(), marginX, y);
+  y += 26;
+
+  const colQty=340, colPrice=460, colSub=rightX;
+  doc.setFontSize(8.5); doc.setTextColor(91,95,99);
+  doc.text("SERVICIO", marginX, y);
+  doc.text("CANT.", colQty, y, {align:"right"});
+  doc.text("P. UNITARIO", colPrice, y, {align:"right"});
+  doc.text("SUBTOTAL", colSub, y, {align:"right"});
+  y += 6;
+  doc.setDrawColor(217,214,204); doc.setLineWidth(0.75); doc.line(marginX, y, rightX, y);
+  y += 16;
+
+  doc.setFontSize(10);
+  q.items.forEach(it=>{
+    doc.setFont("helvetica","normal"); doc.setTextColor(30,33,36);
+    doc.text(String(it.service), marginX, y, {maxWidth: colQty-marginX-10});
+    doc.text(String(it.qty), colQty, y, {align:"right"});
+    doc.setFont("courier","normal");
+    doc.text(fmtMoney(it.unitPrice), colPrice, y, {align:"right"});
+    doc.text(fmtMoney(it.subtotal), colSub, y, {align:"right"});
+    y += 10;
+    doc.setDrawColor(239,237,230); doc.setLineWidth(0.5); doc.line(marginX, y, rightX, y);
+    y += 16;
+  });
+
+  y += 4;
+  doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(30,33,36);
+  doc.text("Subtotal", colPrice, y, {align:"right"});
+  doc.setFont("courier","normal"); doc.text(fmtMoney(q.subtotal), colSub, y, {align:"right"});
+  y += 16;
+  doc.setFont("helvetica","normal"); doc.text("IVA (16%)", colPrice, y, {align:"right"});
+  doc.setFont("courier","normal"); doc.text(fmtMoney(q.iva), colSub, y, {align:"right"});
+  y += 10;
+  doc.setDrawColor(29,78,137); doc.setLineWidth(1.2); doc.line(colPrice-90, y, rightX, y);
+  y += 18;
+  doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.text("Total", colPrice, y, {align:"right"});
+  doc.setFont("courier","bold"); doc.text(fmtMoney(q.total), colSub, y, {align:"right"});
+
+  if(q.notes){
+    y += 30;
+    doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(91,95,99);
+    doc.text("Notas: " + q.notes, marginX, y, {maxWidth: rightX-marginX});
+  }
+
+  doc.setFontSize(8); doc.setTextColor(154,157,159);
+  doc.text("Cotización válida por 15 días. Precios en pesos mexicanos.", marginX, 760);
+}
+
+async function exportQuotePDF(q){
+  if(window.jspdf && window.jspdf.jsPDF){
+    try{
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({unit:"pt", format:"letter"});
+      drawQuotePDF(doc, q);
+      const blob = doc.output("blob");
+      try{
+        const downloads = window.claude ? await window.claude.use("downloads") : null;
+        if(downloads){
+          await downloads.save({ filename: `${q.folio}.pdf`, data: blob });
+          toast("PDF descargado.");
+          return;
+        }
+      }catch(e){ /* si el permiso falla, abrimos el PDF en una pestaña */ }
+      window.open(doc.output("bloburl"), "_blank");
+      return;
+    }catch(e){ /* seguimos con el respaldo de impresión */ }
+  }
+  // Respaldo si la librería de PDF no llegó a cargar: vista imprimible del navegador.
+  const container = $("#quotePrint");
+  container.innerHTML = buildQuotePrintHTML(q);
+  window.print();
+}
+
+function convertQuoteToOT(id){
+  const q = state.quotes.find(x=>x.id===id);
+  if(!q) return;
+  if(q.status==="convertida"){ toast("Esta cotización ya fue convertida."); return; }
+  const folio = "OT-" + (state.meta.otSeq++);
+  state.workorders.push({
+    id: uid("ot"), folio, date: todayISO(), client: q.client.name, quoteFolio: q.folio,
+    items: q.items.map(it=>({service:it.service, qty:it.qty, notes:""})),
+    status:"pendiente", assignedTo:"", dueDate:"", notes:`Convertida desde cotización ${q.folio}.`
+  });
+  q.status = "convertida";
+  save(); render(); toast(`Orden de trabajo ${folio} creada desde ${q.folio}.`);
+  currentView = "ordenes"; render();
+}
+
+function revertQuoteConversion(id){
+  const q = state.quotes.find(x=>x.id===id);
+  if(!q || q.status!=="convertida") return;
+  const linkedOT = state.workorders.find(o=>o.quoteFolio===q.folio);
+  const doRevert = ()=>{
+    if(linkedOT){ state.workorders = state.workorders.filter(o=>o.id!==linkedOT.id); }
+    q.status = "pendiente";
+    save(); render(); toast(`Cotización ${q.folio} regresó a estado pendiente.`);
+  };
+  if(linkedOT){
+    confirmAction(`Esto eliminará la orden de trabajo ${linkedOT.folio} generada a partir de ${q.folio}. ¿Continuar?`, doRevert, {confirmLabel:"Sí, deshacer"});
+  } else {
+    doRevert();
+  }
+}
+
+/* ================= ÓRDENES DE TRABAJO ================= */
+const OT_STEPS = [
+  {key:"pendiente", label:"Pendiente"},
+  {key:"en_proceso", label:"En proceso"},
+  {key:"terminado", label:"Terminado"},
+  {key:"entregado", label:"Entregado"},
+];
+function otStepsHTML(status){
+  const idx = OT_STEPS.findIndex(s=>s.key===status);
+  return `<div class="steps">${OT_STEPS.map((s,i)=>`
+    <div class="step ${i<idx?'done':''} ${i===idx?'current':''}">
+      <div class="n">${i<idx?'✓':i+1}</div><div class="lbl">${esc(s.label)}</div>
+    </div>`).join("")}</div>`;
+}
+function viewOrdenes(){
+  setPage("Órdenes de trabajo","registro / comercial /", `<button class="btn btn-primary" id="addOT">+ Nueva orden (desde cero)</button>`);
+  const rows = state.workorders.map(o=>`
+    <tr>
+      <td class="mono">${esc(o.folio)}</td><td>${esc(o.client)}</td>
+      <td>${o.quoteFolio? `<span class="tag tag-cyan">${esc(o.quoteFolio)}</span>` : `<span class="tag tag-grey">Directa</span>`}</td>
+      <td>${o.items.map(i=>esc(i.service)).join(", ")}</td>
+      <td>${o.assignedTo?esc(o.assignedTo):"Sin asignar"}</td>
+      <td>${tagForStatus(o.status)}</td>
+      <td><div class="row-actions">
+        <button class="btn btn-sm" data-view-ot="${o.id}">Ver</button>
+        <button class="btn btn-sm btn-danger" data-del-ot="${o.id}">Eliminar</button>
+      </div></td>
+    </tr>`).join("");
+  return `
+    <div class="panel">
+      <div class="panel-head"><h3>Órdenes de trabajo</h3><span class="hint">${state.workorders.length} folios</span></div>
+      <div class="panel-body no-pad">
+        <table><thead><tr><th>Folio</th><th>Cliente</th><th>Origen</th><th>Servicios</th><th>Asignado a</th><th>Estado</th><th></th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="7">${emptyState("🗂️","Sin órdenes de trabajo.")}</td></tr>`}</tbody></table>
+      </div>
+    </div>`;
+}
+function otDetailHTML(o){
+  const empOptions = state.employees.filter(e=>e.status==="activo").map(e=>`<option value="${esc(e.name)}" ${o.assignedTo===e.name?"selected":""}>${esc(e.name)}</option>`).join("");
+  return `
+    ${otStepsHTML(o.status)}
+    <div class="field-row" style="margin-bottom:10px;">
+      <div class="field"><label>Cliente</label><input value="${esc(o.client)}" disabled></div>
+      <div class="field"><label>Origen</label><input value="${o.quoteFolio || 'Orden directa'}" disabled></div>
+    </div>
+    <table style="margin-bottom:14px;">
+      <thead><tr><th>Servicio</th><th>Cantidad</th><th>Notas</th></tr></thead>
+      <tbody>${o.items.map(i=>`<tr><td>${esc(i.service)}</td><td class="num">${i.qty}</td><td>${esc(i.notes||"—")}</td></tr>`).join("")}</tbody>
+    </table>
+    <div class="field-row">
+      <div class="field"><label>Asignar a</label><select id="ot_assigned"><option value="">Sin asignar</option>${empOptions}</select></div>
+      <div class="field"><label>Fecha de entrega</label><input id="ot_due" type="date" value="${o.dueDate||""}"></div>
+    </div>
+    <div class="field"><label>Avanzar estado</label>
+      <select id="ot_status">${OT_STEPS.map(s=>`<option value="${s.key}" ${o.status===s.key?"selected":""}>${esc(s.label)}</option>`).join("")}</select>
+    </div>
+    <div class="field"><label>Notas de producción</label><textarea id="ot_notes">${esc(o.notes||"")}</textarea></div>
+  `;
+}
+function openOTModal(id){
+  const o = state.workorders.find(x=>x.id===id);
+  openModal({ title:`Orden ${o.folio}`, wide:true, bodyHTML: otDetailHTML(o),
+    footHTML:`<button class="btn" data-cancel>Cerrar</button><button class="btn btn-primary" id="saveOT">Guardar cambios</button>` });
+  $("#saveOT").addEventListener("click", ()=>{
+    o.assignedTo = $("#ot_assigned").value;
+    o.dueDate = $("#ot_due").value;
+    o.status = $("#ot_status").value;
+    o.notes = $("#ot_notes").value.trim();
+    save(); closeModal(); render(); toast("Orden de trabajo actualizada.");
+  });
+}
+let otDraftItems = [];
+function otLineRow(idx,item){
+  const serviceOptions = state.services.filter(s=>s.active).map(s=>`<option value="${esc(s.name)}" ${item.service===s.name?"selected":""}>${esc(s.name)}</option>`).join("");
+  return `<tr>
+    <td><select class="ot-service">${serviceOptions}</select></td>
+    <td><input class="ot-qty num" type="number" step="1" min="1" value="${item.qty}" style="width:70px"></td>
+    <td><input class="ot-notes" value="${esc(item.notes)}" placeholder="Notas"></td>
+    <td><button class="btn btn-sm btn-ghost btn-danger" data-ot-remove="${idx}">✕</button></td>
+  </tr>`;
+}
+function renderOtLines(){
+  const tbody = $("#otLines");
+  if(!tbody) return;
+  tbody.innerHTML = otDraftItems.map((it,idx)=>otLineRow(idx,it)).join("");
+  $$(".ot-service", tbody).forEach((sel,idx)=> sel.addEventListener("change", ()=>{ otDraftItems[idx].service = sel.value; }));
+  $$(".ot-qty", tbody).forEach((inp,idx)=> inp.addEventListener("input", ()=>{ otDraftItems[idx].qty = parseFloat(inp.value)||1; }));
+  $$(".ot-notes", tbody).forEach((inp,idx)=> inp.addEventListener("input", ()=>{ otDraftItems[idx].notes = inp.value; }));
+  $$("[data-ot-remove]", tbody).forEach(btn=> btn.addEventListener("click", ()=>{ otDraftItems.splice(parseInt(btn.dataset.otRemove),1); renderOtLines(); }));
+}
+function openNewOTModal(){
+  otDraftItems = state.services[0] ? [{service:state.services[0].name, qty:1, notes:""}] : [];
+  openModal({
+    title:"Nueva orden de trabajo (desde cero)", wide:true,
+    bodyHTML:`
+      <div class="field"><label>Cliente</label><input id="ot_client" placeholder="Nombre del cliente"></div>
+      <table class="line-table"><thead><tr><th>Servicio</th><th>Cantidad</th><th>Notas</th><th></th></tr></thead><tbody id="otLines"></tbody></table>
+      <button class="btn btn-sm" id="ot_addLine" style="margin-top:10px;">+ Agregar servicio</button>
+      <div class="field" style="margin-top:14px;"><label>Fecha de entrega</label><input id="ot_due" type="date"></div>
+    `,
+    footHTML:`<button class="btn" data-cancel>Cancelar</button><button class="btn btn-primary" id="createOT">Crear orden</button>`
+  });
+  renderOtLines();
+  $("#ot_addLine").addEventListener("click", ()=>{ const s=state.services[0]; otDraftItems.push({service:s?s.name:"", qty:1, notes:""}); renderOtLines(); });
+  $("#createOT").addEventListener("click", ()=>{
+    const client = $("#ot_client").value.trim();
+    if(!client){ toast("Indica el cliente."); return; }
+    if(otDraftItems.length===0){ toast("Agrega al menos un servicio."); return; }
+    const folio = "OT-" + (state.meta.otSeq++);
+    state.workorders.push({ id:uid("ot"), folio, date:todayISO(), client, quoteFolio:null,
+      items: JSON.parse(JSON.stringify(otDraftItems)), status:"pendiente", assignedTo:"", dueDate:$("#ot_due").value||"", notes:"" });
+    save(); closeModal(); render(); toast(`Orden ${folio} creada.`);
+  });
+}
+
+/* ================= Render principal + eventos delegados ================= */
+function render(){
+  renderNav();
+  let html = "";
+  if(currentView==="dashboard") html = viewDashboard();
+  else if(currentView==="servicios") html = viewServicios();
+  else if(currentView==="inventario") html = viewInventario();
+  else if(currentView==="proveedores") html = viewProveedores();
+  else if(currentView==="compras") html = viewCompras();
+  else if(currentView==="finanzas") html = viewFinanzas();
+  else if(currentView==="rh") html = viewRH();
+  else if(currentView==="cotizador") html = viewCotizador();
+  else if(currentView==="cotizaciones") html = viewCotizaciones();
+  else if(currentView==="ordenes") html = viewOrdenes();
+  $("#content").innerHTML = html;
+  attachContentEvents();
+}
+
+function attachContentEvents(){
+  const c = $("#content");
+  $$("[data-goto]").forEach(el=> el.addEventListener("click", ()=>{ currentView = el.dataset.goto; render(); }));
+  $$("[data-cancel]").forEach(el=> el.addEventListener("click", closeModal));
+
+  // Servicios
+  const addServicio = $("#addServicio"); if(addServicio) addServicio.addEventListener("click", ()=>openServicioModal());
+  $$("[data-edit-servicio]", c).forEach(b=> b.addEventListener("click", ()=>openServicioModal(b.dataset.editServicio)));
+  $$("[data-del-servicio]", c).forEach(b=> b.addEventListener("click", ()=>{
+    confirmAction("¿Eliminar este servicio?", ()=>{ state.services = state.services.filter(s=>s.id!==b.dataset.delServicio); save(); render(); toast("Servicio eliminado."); });
+  }));
+
+  // Inventario tabs
+  $$("[data-inv-tab]", c).forEach(b=> b.addEventListener("click", ()=>{ inventoryTab = b.dataset.invTab; render(); }));
+  const addMaterial = $("#addMaterial"); if(addMaterial) addMaterial.addEventListener("click", ()=>openMaterialModal());
+  $$("[data-edit-material]", c).forEach(b=> b.addEventListener("click", ()=>openMaterialModal(b.dataset.editMaterial)));
+  $$("[data-del-material]", c).forEach(b=> b.addEventListener("click", ()=>{
+    confirmAction("¿Eliminar este material?", ()=>{ state.materials = state.materials.filter(m=>m.id!==b.dataset.delMaterial); save(); render(); toast("Material eliminado."); });
+  }));
+  const addMerma = $("#addMerma"); if(addMerma) addMerma.addEventListener("click", ()=>openMermaModal());
+  $$("[data-edit-merma]", c).forEach(b=> b.addEventListener("click", ()=>openMermaModal(b.dataset.editMerma)));
+  $$("[data-del-merma]", c).forEach(b=> b.addEventListener("click", ()=>{
+    confirmAction("¿Eliminar este registro de merma?", ()=>{ state.waste = state.waste.filter(w=>w.id!==b.dataset.delMerma); save(); render(); toast("Registro eliminado."); });
+  }));
+
+  // Proveedores
+  const addProveedor = $("#addProveedor"); if(addProveedor) addProveedor.addEventListener("click", ()=>openProveedorModal());
+  $$("[data-edit-proveedor]", c).forEach(b=> b.addEventListener("click", ()=>openProveedorModal(b.dataset.editProveedor)));
+  $$("[data-del-proveedor]", c).forEach(b=> b.addEventListener("click", ()=>{
+    confirmAction("¿Eliminar este proveedor?", ()=>{ state.suppliers = state.suppliers.filter(p=>p.id!==b.dataset.delProveedor); save(); render(); toast("Proveedor eliminado."); });
+  }));
+
+  // Compras
+  const addCompra = $("#addCompra"); if(addCompra) addCompra.addEventListener("click", openCompraModal);
+  $$("[data-recibir-compra]", c).forEach(b=> b.addEventListener("click", ()=>{
+    const comp = state.purchases.find(x=>x.id===b.dataset.recibirCompra);
+    if(comp){
+      comp.status="recibida";
+      comp.items.forEach(it=>{
+        const mat = state.materials.find(m=>m.name===it.material);
+        if(mat) mat.stock += it.qty;
+      });
+      save(); render(); toast("Compra recibida — inventario actualizado.");
+    }
+  }));
+  $$("[data-del-compra]", c).forEach(b=> b.addEventListener("click", ()=>{
+    confirmAction("¿Eliminar esta compra?", ()=>{ state.purchases = state.purchases.filter(x=>x.id!==b.dataset.delCompra); save(); render(); toast("Compra eliminada."); });
+  }));
+
+  // Finanzas
+  const addMovimiento = $("#addMovimiento"); if(addMovimiento) addMovimiento.addEventListener("click", openMovimientoModal);
+  $$("[data-del-mov]", c).forEach(b=> b.addEventListener("click", ()=>{
+    confirmAction("¿Eliminar este movimiento?", ()=>{ state.transactions = state.transactions.filter(t=>t.id!==b.dataset.delMov); save(); render(); toast("Movimiento eliminado."); });
+  }));
+
+  // RH
+  const addEmpleado = $("#addEmpleado"); if(addEmpleado) addEmpleado.addEventListener("click", ()=>openEmpleadoModal());
+  $$("[data-edit-empleado]", c).forEach(b=> b.addEventListener("click", ()=>openEmpleadoModal(b.dataset.editEmpleado)));
+  $$("[data-del-empleado]", c).forEach(b=> b.addEventListener("click", ()=>{
+    confirmAction("¿Eliminar a este colaborador?", ()=>{ state.employees = state.employees.filter(e=>e.id!==b.dataset.delEmpleado); save(); render(); toast("Colaborador eliminado."); });
+  }));
+
+  // Cotizador
+  const qAddLine = $("#q_addLine");
+  if(qAddLine){
+    qAddLine.addEventListener("click", ()=>{
+      const sel = $("#q_addService");
+      const svc = state.services.find(s=>s.id===sel.value);
+      if(!svc) return;
+      quoteDraft.items.push({service:svc.name, qty:1, unitPrice:svc.price, subtotal:svc.price});
+      render();
+    });
+  }
+  $$(".q-qty", c).forEach(inp=> inp.addEventListener("input", ()=>{
+    const idx = parseInt(inp.dataset.idx);
+    const qty = parseFloat(inp.value)||1;
+    quoteDraft.items[idx].qty = qty;
+    quoteDraft.items[idx].subtotal = qty*quoteDraft.items[idx].unitPrice;
+    render();
+  }));
+  $$("[data-q-remove]", c).forEach(b=> b.addEventListener("click", ()=>{ quoteDraft.items.splice(parseInt(b.dataset.qRemove),1); render(); }));
+  const qClear = $("#q_clear"); if(qClear) qClear.addEventListener("click", ()=>{ quoteDraft = newQuoteDraft(); render(); });
+  const qGenerate = $("#q_generate");
+  if(qGenerate){
+    qGenerate.addEventListener("click", ()=>{
+      quoteDraft.client = { name: $("#q_client").value.trim()||"Cliente sin nombre", phone: $("#q_phone").value.trim(), email: $("#q_email").value.trim() };
+      quoteDraft.notes = $("#q_notes").value.trim();
+      const { subtotal, iva, total } = quoteDraftTotal();
+      const folio = "COT-" + (state.meta.quoteSeq++);
+      state.quotes.push({ id:uid("cot"), folio, date:todayISO(), client:quoteDraft.client,
+        items: JSON.parse(JSON.stringify(quoteDraft.items)), subtotal, iva, total, status:"pendiente", notes:quoteDraft.notes });
+      save();
+      quoteDraft = newQuoteDraft();
+      currentView = "cotizaciones";
+      render();
+      toast(`Cotización ${folio} generada.`);
+    });
+  }
+  if(!c.contains($("#q_client"))) { /* refresca listeners de q_ solo si están presentes, ya cubierto arriba */ }
+  const qClientInput = $("#q_client"); if(qClientInput) qClientInput.addEventListener("input", ()=>{ quoteDraft.client.name = qClientInput.value; });
+  const qPhoneInput = $("#q_phone"); if(qPhoneInput) qPhoneInput.addEventListener("input", ()=>{ quoteDraft.client.phone = qPhoneInput.value; });
+  const qEmailInput = $("#q_email"); if(qEmailInput) qEmailInput.addEventListener("input", ()=>{ quoteDraft.client.email = qEmailInput.value; });
+  const qNotesInput = $("#q_notes"); if(qNotesInput) qNotesInput.addEventListener("input", ()=>{ quoteDraft.notes = qNotesInput.value; });
+
+  // Cotizaciones
+  $$("[data-view-quote]", c).forEach(b=> b.addEventListener("click", ()=>openQuoteModal(b.dataset.viewQuote)));
+  $$("[data-convert-quote]", c).forEach(b=> b.addEventListener("click", ()=>convertQuoteToOT(b.dataset.convertQuote)));
+  $$("[data-revert-quote]", c).forEach(b=> b.addEventListener("click", ()=>revertQuoteConversion(b.dataset.revertQuote)));
+  $$("[data-del-quote]", c).forEach(b=> b.addEventListener("click", ()=>{
+    confirmAction("¿Eliminar esta cotización?", ()=>{ state.quotes = state.quotes.filter(q=>q.id!==b.dataset.delQuote); save(); render(); toast("Cotización eliminada."); });
+  }));
+
+  // Órdenes de trabajo
+  const addOT = $("#addOT"); if(addOT) addOT.addEventListener("click", openNewOTModal);
+  $$("[data-view-ot]", c).forEach(b=> b.addEventListener("click", ()=>openOTModal(b.dataset.viewOt)));
+  $$("[data-del-ot]", c).forEach(b=> b.addEventListener("click", ()=>{
+    confirmAction("¿Eliminar esta orden de trabajo?", ()=>{ state.workorders = state.workorders.filter(o=>o.id!==b.dataset.delOt); save(); render(); toast("Orden eliminada."); });
+  }));
+}
+
+/* ================= Init ================= */
+loadState();
+render();
+
+})();
+</script>
+</body>
+</html>
