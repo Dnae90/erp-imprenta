@@ -484,6 +484,7 @@ function openModal({title, bodyHTML, footHTML, wide}){
   $("#modalBody").innerHTML = bodyHTML;
   $("#modalFoot").innerHTML = footHTML || "";
   $("#modal").classList.toggle("wide", !!wide);
+  $$("[data-cancel]", $("#modal")).forEach(el=> el.addEventListener("click", closeModal));
   $("#overlay").classList.add("open");
 }
 function closeModal(){ $("#overlay").classList.remove("open"); }
@@ -1436,7 +1437,6 @@ function render(){
 function attachContentEvents(){
   const c = $("#content");
   $$("[data-goto]").forEach(el=> el.addEventListener("click", ()=>{ currentView = el.dataset.goto; render(); }));
-  $$("[data-cancel]").forEach(el=> el.addEventListener("click", closeModal));
 
   // Servicios
   const addServicio = $("#addServicio"); if(addServicio) addServicio.addEventListener("click", ()=>openServicioModal());
