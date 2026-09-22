@@ -288,7 +288,7 @@
     <div class="topbar">
       <div>
         <button class="menu-btn" id="menuBtn">☰</button>
-        <div class="crumb" id="crumb">registro /</div>
+        <div class="crumb" id="crumb">Tiraje /</div>
         <h1 id="pageTitle">Inicio</h1>
       </div>
       <div class="actions" id="pageActions"></div>
@@ -523,7 +523,7 @@ function emptyState(icon, text){
 
 /* ================= DASHBOARD ================= */
 function viewDashboard(){
-  setPage("Inicio","registro /", "");
+  setPage("Inicio","Tiraje /", "");
   const ingresos = state.transactions.filter(t=>t.type==="ingreso").reduce((a,b)=>a+b.amount,0);
   const egresos = state.transactions.filter(t=>t.type==="egreso").reduce((a,b)=>a+b.amount,0);
   const otAbiertas = state.workorders.filter(o=>o.status!=="terminado" && o.status!=="entregado").length;
@@ -572,7 +572,7 @@ function viewDashboard(){
 
 /* ================= SERVICIOS Y COSTOS ================= */
 function viewServicios(){
-  setPage("Servicios y costos","registro / comercial /",
+  setPage("Servicios y costos","Tiraje / comercial /",
     `<button class="btn btn-primary" id="addServicio">+ Nuevo servicio</button>`);
   const rows = state.services.map(s=>{
     const margen = s.price>0 ? (((s.price-s.cost)/s.price)*100).toFixed(0) : "0";
@@ -642,7 +642,7 @@ function openServicioModal(id){
 
 /* ================= INVENTARIO Y MERMAS ================= */
 function viewInventario(){
-  setPage("Inventario y mermas","registro / operación /",
+  setPage("Inventario y mermas","Tiraje / operación /",
     inventoryTab==="materiales"
       ? `<button class="btn btn-primary" id="addMaterial">+ Nuevo material</button>`
       : `<button class="btn btn-primary" id="addMerma">+ Registrar merma</button>`);
@@ -773,7 +773,7 @@ function openMermaModal(id){
 
 /* ================= PROVEEDORES ================= */
 function viewProveedores(){
-  setPage("Proveedores","registro / operación /", `<button class="btn btn-primary" id="addProveedor">+ Nuevo proveedor</button>`);
+  setPage("Proveedores","Tiraje / operación /", `<button class="btn btn-primary" id="addProveedor">+ Nuevo proveedor</button>`);
   const rows = state.suppliers.map(p=>`
     <tr>
       <td>${esc(p.name)}</td><td>${esc(p.contact)}</td><td class="mono">${esc(p.phone)}</td>
@@ -822,7 +822,7 @@ function openProveedorModal(id){
 /* ================= COMPRAS ================= */
 let purchaseDraftItems = [];
 function viewCompras(){
-  setPage("Compras","registro / operación /", `<button class="btn btn-primary" id="addCompra">+ Nueva compra</button>`);
+  setPage("Compras","Tiraje / operación /", `<button class="btn btn-primary" id="addCompra">+ Nueva compra</button>`);
   const rows = state.purchases.map(c=>`
     <tr>
       <td class="mono">${fmtDate(c.date)}</td><td>${esc(c.supplier)}</td>
@@ -907,7 +907,7 @@ function openCompraModal(){
 
 /* ================= INGRESOS Y EGRESOS ================= */
 function viewFinanzas(){
-  setPage("Ingresos y egresos","registro / administración /", `<button class="btn btn-primary" id="addMovimiento">+ Nuevo movimiento</button>`);
+  setPage("Ingresos y egresos","Tiraje / administración /", `<button class="btn btn-primary" id="addMovimiento">+ Nuevo movimiento</button>`);
   const ingresos = state.transactions.filter(t=>t.type==="ingreso").reduce((a,b)=>a+b.amount,0);
   const egresos = state.transactions.filter(t=>t.type==="egreso").reduce((a,b)=>a+b.amount,0);
   const rows = [...state.transactions].sort((a,b)=> (a.date<b.date?1:-1)).map(t=>`
@@ -957,7 +957,7 @@ function openMovimientoModal(){
 
 /* ================= RH ================= */
 function viewRH(){
-  setPage("Recursos humanos","registro / administración /", `<button class="btn btn-primary" id="addEmpleado">+ Nuevo colaborador</button>`);
+  setPage("Recursos humanos","Tiraje / administración /", `<button class="btn btn-primary" id="addEmpleado">+ Nuevo colaborador</button>`);
   const nomina = state.employees.filter(e=>e.status==="activo").reduce((a,b)=>a+b.salary,0);
   const rows = state.employees.map(e=>`
     <tr>
@@ -1031,7 +1031,7 @@ function quoteDraftTotal(){
 }
 function viewCotizador(){
   if(!quoteDraft) quoteDraft = newQuoteDraft();
-  setPage("Cotizador","registro / comercial /", "");
+  setPage("Cotizador","Tiraje / comercial /", "");
   const serviceOptions = state.services.filter(s=>s.active).map(s=>`<option value="${s.id}">${esc(s.name)} — ${fmtMoney(s.price)} / ${esc(s.unit)}</option>`).join("");
   const { subtotal, iva, total } = quoteDraftTotal();
   const lineRows = quoteDraft.items.map((it,idx)=>`
@@ -1085,7 +1085,7 @@ function viewCotizador(){
 
 /* ================= COTIZACIONES ================= */
 function viewCotizaciones(){
-  setPage("Cotizaciones","registro / comercial /", `<button class="btn btn-primary" data-goto="cotizador">+ Nueva cotización</button>`);
+  setPage("Cotizaciones","Tiraje / comercial /", `<button class="btn btn-primary" data-goto="cotizador">+ Nueva cotización</button>`);
   const rows = state.quotes.map(q=>`
     <tr>
       <td class="mono">${esc(q.folio)}</td><td>${fmtDate(q.date)}</td><td>${esc(q.client.name)}</td>
@@ -1137,7 +1137,7 @@ function buildQuotePrintHTML(q){
     <div style="font-family:'IBM Plex Sans',sans-serif;color:#1E2124;max-width:680px;margin:0 auto;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1D4E89;padding-bottom:14px;margin-bottom:18px;">
         <div>
-          <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;">Registro · ERP Imprentas</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;">Tiraje · ERP Imprentas</div>
           <div style="font-size:12px;color:#5B5F63;">Culiacán, Sinaloa</div>
         </div>
         <div style="text-align:right;">
@@ -1177,7 +1177,7 @@ function drawQuotePDF(doc, q){
   const marginX = 54, pageW = 612, rightX = pageW - marginX;
   let y = 60;
   doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(30,33,36);
-  doc.text("Registro · ERP Imprentas", marginX, y);
+  doc.text("Tiraje · ERP Imprentas", marginX, y);
   doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(91,95,99);
   doc.text("Culiacán, Sinaloa", marginX, y+14);
   doc.setFont("courier","bold"); doc.setFontSize(13); doc.setTextColor(30,33,36);
@@ -1315,7 +1315,7 @@ function otStepsHTML(status){
     </div>`).join("")}</div>`;
 }
 function viewOrdenes(){
-  setPage("Órdenes de trabajo","registro / comercial /", `<button class="btn btn-primary" id="addOT">+ Nueva orden (desde cero)</button>`);
+  setPage("Órdenes de trabajo","Tiraje / comercial /", `<button class="btn btn-primary" id="addOT">+ Nueva orden (desde cero)</button>`);
   const rows = state.workorders.map(o=>`
     <tr>
       <td class="mono">${esc(o.folio)}</td><td>${esc(o.client)}</td>
